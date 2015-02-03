@@ -7,7 +7,8 @@
 #include <limits>
 using namespace std;
 
-// Value swap
+unsigned int counter = 0;
+
 template<typename T>
 void swap(T *p1, T *p2)
 {
@@ -15,7 +16,6 @@ void swap(T *p1, T *p2)
     *p1 = *p2;
     *p2 = tmp;
 }
-
 // Pointer swap
 template<typename T>
 void swap(T **p1, T **p2)
@@ -23,6 +23,7 @@ void swap(T **p1, T **p2)
     T *tmp = *p1;
     *p1 = *p2;
     *p2 = tmp;
+    ++counter;
 }
 
 template<class ItemType>
@@ -65,64 +66,82 @@ public:
     void setEntry(int pos, const ItemType& item) throw(invalid_argument);
 
 private:
-    void copy(ItemType *original, ItemType *dest)
+    // Copy up to numItems within the class
+    void copy(ItemType *dest, ItemType *origin)
     {
         for(int i = 0; i < numItems; ++i)
-            dest[i] = original[i];
+            dest[i] = origin[i];
     }
+
+    void realloc(int newSize)
+    {
+        ItemType *array = new ItemType[newSize];
+        copy(array, list);
+        swap(&array, &list);
+        delete [] array;
+    }
+
 };
 
 /* TODO
 Reimplement insert to allocate for CHUNK_SIZE without wasteful
-allocations (=> change bool test)
-*/
+allocations (=> change bool test) */
 template<class ItemType>
 bool List<ItemType>::insert(int pos, const ItemType& item)
 {
-    bool canAdd;
+    if(pos < 1)
+        return false;
 
-    canAdd = ((pos > 0) && (pos <= numItems + 1) && (numItems < maxItems));
-    if (canAdd)
+    cout << "numItems: " << numItems << endl;
+
+    if(pos > numItems)
     {
-        // first, we have to move everything after our insertion point over one
-        // position to make room for our new item.  start at the back of the list.
-        // don't forget arrays start at postion zero and our list ADT starts at
-        // position 1.
-        for(int i = numItems; i >= pos; i--)
-            list[i] = list[i - 1];
+        cout << "Pos > numItems\n";
+        numItems = pos;
 
-        // now put our item at position pos-1
-        list[pos - 1] = item;
+        while(numItems > maxItems)
+            maxItems += CHUNK_SIZE;
 
-        numItems++;
+        --numItems;
+        return insert(pos, item);
+    }
+    else if(numItems + 1 > maxItems)
+    {
+        cout << "Reallocating\n";
+        while(numItems + 1 > maxItems)
+            maxItems += CHUNK_SIZE;
+
+        realloc(maxItems);
+        return insert(pos, item);
     }
     else
     {
-        maxItems += CHUNK_SIZE;
-        ItemType *newArray = new ItemType[maxItems];
-        copy(list, newArray);
-        swap(&list, &newArray); // Pointer swap
+        cout << "Shifting and Inserting\n";
+        for(int i = numItems - 1; i >= pos; --i)
+            list[i - 1] = list[i];
 
-        delete [] newArray;
-
-        // Recursive call to insert after allocating a new chunk
-        cout << "Allocated new chunk of size: " << CHUNK_SIZE << endl;
-        return insert(pos, item);
+        list[pos - 1] = item;
+        if(pos <= numItems)
+            ++numItems;
     }
 
-    return canAdd;
+    cout << "numItems: " << numItems << ", Value: " << item
+         << ", maxItems: " << maxItems << ", Pos: " << pos << endl;
+
+    return true;
 }
 
+// Pos starts at >= 1 on input.
 template<class ItemType>
 bool List<ItemType>::remove(int pos)
 {
     if(pos < 1 || pos > numItems)
         return false;
 
-    // Shift everything over one to the right [pos .. n - 1]
-    for(int i = pos; i < numItems - 1; ++i)
+    numItems -= 1;
+
+    for(int i = pos - 1; i < numItems - 1; ++i)
         list[i] = list[i + 1];
-    --numItems;
 
     return true;
 }
@@ -184,15 +203,21 @@ int main()
     songs.insert(1, "One More Saturday Night");
     songs.insert(1, "Friday I'm in Love");
     songs.insert(3, "Sunday Morning Coming Down");
+
     songs.insert(1, "California Love");
     songs.insert(1, "YOLO");
-    songs.insert(2, "Give It To Me");
-    songs.insert(3, "HEHE");
+    songs.insert(1, "Give It To Me");
+    songs.insert(1, "HEHE");
 
+    /*
     songs.remove(1);
     songs.remove(1);
-    songs.remove(3);
+    songs.remove(1);
+    */
 
+    cout << "O(n) = O(" << counter << ")\n";
+
+    /*
     cout << "Welcome!  There are " << songs.getLength() << " tracks.\n";
     while(goAgain != 'n')
     {
@@ -210,8 +235,14 @@ int main()
         cout << "Go again? (y/n) ";
         cin >> goAgain;
     }
+    */
 
     cout << "Rock on!\n";
+
+    cout << "Size: " << songs.getLength() << endl;
+
+    for(int i = 1; i <= 8; ++i)
+        cout << i << ": " << songs.getEntry(i) << endl;
     return 0; 
 }
 
