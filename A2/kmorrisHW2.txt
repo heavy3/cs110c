@@ -226,3 +226,31 @@ int main()
     return 0;
 }
 
+/* Example output
+[kevr@bit A2]$ ./exec 
+ERROR: setEntry() given invalid position
+Welcome!  There are 4 tracks.
+Please enter the track number you'd like to view: -1
+ERROR: getEntry() using invalid position
+Your track name is No Track
+Go again? (y/n) y
+Please enter the track number you'd like to view: 2
+Your track name is Friday I'm in Love
+Go again? (y/n) y
+Please enter the track number you'd like to view: 1
+Your track name is New Entry
+Go again? (y/n) y
+Please enter the track number you'd like to view: 6
+ERROR: getEntry() using invalid position
+Your track name is No Track
+Go again? (y/n) y
+Please enter the track number you'd like to view: 4
+Your track name is Sunday Morning Coming Down
+Go again? (y/n) y
+Please enter the track number you'd like to view: 3
+Your track name is One More Saturday Night
+Go again? (y/n) n
+Rock on!
+*/
+
+
