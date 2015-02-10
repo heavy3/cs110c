@@ -1,9 +1,9 @@
 //  Created by Frank M. Carrano and Tim Henry.
 //  Copyright (c) 2013 __Pearson Education__. All rights reserved.
-//  Edited portions of the code, eg. ItemType = T, and implementations
-//  differ.
+
 /** Implementation file for the class LinkedList.
- @file LinkedList.cpp */
+    @file LinkedList.cpp */
+
 #include "LinkedList.h"  // Header file
 #include <cassert>
 #include <string>
@@ -12,29 +12,26 @@
 template<class T>
 LinkedList<T>::LinkedList() : itemCount(0)
 {
+    itemCount = 0;
 }  // end default constructor
 
 template<class T>
 LinkedList<T>::LinkedList(const LinkedList<T>& aList)
     : itemCount(aList.itemCount)
 {
-    // Points to nodes in original chain
-    Node<T>* origChainPtr = aList.headPtr;
-
-    if (origChainPtr)
-        headPtr = nullptr;  // Original list is empty
-    else
+    // Points to node in original chain
+    Node<T>* origChainPtr = aList.headPtr;  
+    if (origChainPtr == nullptr)
     {
         // Copy first node
-        headPtr = new Node<T>(origChainPtr->getItem());
-
+        headPtr = new Node<T>();
+        headPtr->setItem(origChainPtr->getItem());
+        
         // Copy remaining nodes
         // Points to last node in new chain
         Node<T>* newChainPtr = headPtr;
-
         // Advance original-chain pointer
         origChainPtr = origChainPtr->getNext();
-        
         while (origChainPtr != nullptr)
         {
             // Get next item from original chain
@@ -46,79 +43,78 @@ LinkedList<T>::LinkedList(const LinkedList<T>& aList)
             // Link new node to end of new chain
             newChainPtr->setNext(newNodePtr); 
             
-            // Advance pointer to new last node        
+            // Advance pointer to new last node          
             newChainPtr = newChainPtr->getNext();
             
             // Advance original-chain pointer
             origChainPtr = origChainPtr->getNext();
         }  // end while
-        
-        // Flag end of chain
-        newChainPtr->setNext(nullptr);
-    } // end if
-} // end copy constructor
+            
+    newChainPtr->setNext(nullptr);  // Flag end of chain
+    }  // end if
+}  // end copy constructor
 
 template<class T>
 LinkedList<T>::~LinkedList()
 {
     clear();
-} // end destructor
+}  // end destructor
 
 template<class T>
 bool LinkedList<T>::isEmpty() const
 {
     return itemCount == 0;
-} // end isEmpty
+}  // end isEmpty
 
 template<class T>
 int LinkedList<T>::getLength() const
 {
     return itemCount;
-} // end getLength
+}  // end getLength
 
 template<class T>
 bool LinkedList<T>::insert(int newPos, const T& newEntry)
 {
     bool ableToInsert = (newPos >= 1) && (newPos <= itemCount + 1);
 
-    if (!ableToInsert)
-        return false;
-
-    // Create a new node containing the new entry 
-    Node<T>* newNodePtr = new Node<T>(newEntry);
-
-    // Insert value at newPos
-    if(!headPtr)
+    // headPTr and tailPtr are null at this point, special case to jump
+    if(itemCount == 0)
     {
-        headPtr = tailPtr = newNodePtr;
+        headPtr = tailPtr = new Node<T>(newEntry);
         ++itemCount;
         return true;
     }
 
-    // Start from tailPtr and go back.
+    if (ableToInsert)
+    {
+        // Create a new node containing the new entry 
+        Node<T>* newNodePtr = new Node<T>(newEntry);  
 
-    Node<T> *ptr = getNodeAt(newPos - 1);
-    // Add new node at (pos - 1)->next position and swap parents
-    // and children of the node.
-    ptr->setNext(newNodePtr);
-    ptr->getNext()->setPrev(ptr);
+        // This implementation ignores newPos, and always put the new
+        // item at the beginning of the list.
+        // Your assignment is to correctly insert the item into newPos
+        std::cout << "NewPos: " << newPos << std::endl;
 
-    itemCount++; // Increase count of entries
+        auto node = getNodeAt(newPos - 1);
+        std::cout << "Inserting at: " << node->getItem() << std::endl;
+        newNodePtr->setNext(node);
+        if(node->getPrev())
+        {
+            node->getPrev()->setNext(newNodePtr);
+            newNodePtr->setPrev(node->getPrev());
+        }
+        node->setPrev(newNodePtr);
+
+        ++itemCount;  // Increase count of entries
+    }  // end if
     
     return ableToInsert;
-} // end insert
-
-template<class T>
-bool LinkedList<T>::insert(int newPos, T&& newEntry)
-{
-    return true;
-}
+}  // end insert
 
 template<class T>
 bool LinkedList<T>::remove(int pos)
 {
     bool ableToRemove = (pos >= 1) && (pos <= itemCount);
-
     if (ableToRemove)
     {
         Node<T>* curPtr = nullptr;
@@ -139,7 +135,7 @@ bool LinkedList<T>::remove(int pos)
             // Disconnect indicated node from chain by connecting the
             // prior node with the one after
             prevPtr->setNext(curPtr->getNext());
-        } // end if
+        }  // end if
         
         // Return node to system
         curPtr->setNext(nullptr);
@@ -147,17 +143,17 @@ bool LinkedList<T>::remove(int pos)
         curPtr = nullptr;
         
         itemCount--;  // Decrease count of entries
-    } // end if
+    }  // end if
     
     return ableToRemove;
-} // end remove
+}  // end remove
 
 template<class T>
 void LinkedList<T>::clear()
 {
     while (!isEmpty())
         remove(1);
-} // end clear
+}  // end clear
 
 template<class T>
 const T& LinkedList<T>::getEntry(int pos) const
@@ -165,15 +161,19 @@ throw(PrecondViolatedExcep)
 {
     // Enforce precondition
     bool ableToGet = (pos >= 1) && (pos <= itemCount);
-    if (!ableToGet)
+    if (ableToGet)
+    {
+        Node<T>* nodePtr = getNodeAt(pos);
+        assert(nodePtr != nullptr);
+        return nodePtr->getItem();
+    }
+    else
     {
         string message = "getEntry() called with an empty list or "; 
         message  = message + "invalid pos.";
         throw(PrecondViolatedExcep(message)); 
-    } // end if
-    Node<T>* nodePtr = getNodeAt(pos);
-    return nodePtr->getItem();
-} // end getEntry
+    }  // end if
+}  // end getEntry
 
 template<class T>
 const T& LinkedList<T>::operator[](int pos) const
@@ -196,7 +196,7 @@ throw(PrecondViolatedExcep)
     else
     {
         string message = "setEntry() called with an invalid pos."; 
-        throw PrecondViolatedExcep(message);
+        throw(PrecondViolatedExcep(message)); 
     }  // end if
 }  // end setEntry
 
@@ -205,38 +205,23 @@ Node<T>* LinkedList<T>::getNodeAt(int pos) const
 {
     // Debugging check of precondition
     assert( (pos >= 1) && (pos <= itemCount) );
-    
+
+    if(pos == 1)
+        return headPtr;
+
     // Count from the beginning of the chain
-    Node<T>* curPtr = headPtr;
-
     if(pos <= getLength() / 2)
-    {
-        curPtr = getNodeRecursive(pos, headPtr, &Node<T>::getNext);
-    }
-    else
-    {
-        curPtr = getNodeRecursive(getLength() - pos,
-                                  tailPtr, &Node<T>::getPrev);
-    }
+        return getNodeAt(pos, headPtr, &Node<T>::getNext);
 
-    return curPtr;
-} // end getNodeAt
+    return getNodeAt(getLength() - pos, tailPtr, &Node<T>::getPrev);
+}  // end getNodeAt
 
-/*
-template<class T, typename F>
-Node<T>*
-LinkedList<T>::getNodeRecursive(int pos,
-                                Node<T>* curPtr,
-                                F f = F()) const
-{
-    return pos > 0 ? getNodeRecursive(pos - 1, curPtr->getNext()) : curPtr;
-}
-*/
 
 // End of implementation file.  To get this to compile on hills,
 // add definitions of template types we will use (int or string now,
 // add more types if necessary)
 template class LinkedList<int>;
 template class LinkedList<std::string>;
+
 
 

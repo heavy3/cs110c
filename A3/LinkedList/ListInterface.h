@@ -49,7 +49,6 @@ public:
      @post  The desired entry has been returned.
      @param position  The list position of the desired entry.
      @return  The entry at the given position. */
-     // PS. used const T& for implementation purposes
     virtual const T& getEntry(int position) const = 0;
     
     /** Replaces the entry at the given position in this list.
@@ -59,6 +58,4 @@ public:
      @param newEntry  The replacement entry. */
     virtual void setEntry(int position, const T& newEntry) = 0;
 }; // end ListInterface
-
 #endif
-

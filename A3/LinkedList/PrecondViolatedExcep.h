@@ -12,10 +12,9 @@
 
 using namespace std;
 
-struct PrecondViolatedExcep : public logic_error
+class PrecondViolatedExcep : public logic_error
 {
-    using logic_error::logic_error;
+public:
+   PrecondViolatedExcep(const string& message = "");
 }; // end PrecondViolatedExcep 
-
 #endif
-

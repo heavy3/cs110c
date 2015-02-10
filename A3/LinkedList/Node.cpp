@@ -8,18 +8,18 @@
 #include <string>
 
 template<class T>
-Node<T>::Node()
+Node<T>::Node() : next(nullptr)
 {
 } // end default constructor
 
 template<class T>
-Node<T>::Node(const T& anItem) : item(anItem)
+Node<T>::Node(const T& anItem) : item(anItem), next(nullptr)
 {
 } // end constructor
 
 template<class T>
-Node<T>::Node(const T& anItem, Node<T>* nextNodePtr)
-    : item(anItem), next(nextNodePtr)
+Node<T>::Node(const T& anItem, Node<T>* nextNodePtr) :
+                item(anItem), next(nextNodePtr)
 {
 } // end constructor
 
@@ -33,7 +33,7 @@ template<class T>
 void Node<T>::setPrev(Node<T>* prevNodePtr)
 {
     prev = prevNodePtr;
-} // end setPrev
+}
 
 template<class T>
 void Node<T>::setNext(Node<T>* nextNodePtr)
@@ -51,7 +51,15 @@ template<class T>
 Node<T>* Node<T>::getPrev() const
 {
     return prev;
-} // end getPrev
+}
+
+template<class T>
+const Node<T>& Node<T>::operator--() const
+{
+    if(prev)
+        return *prev;
+    return *this;
+}
 
 template<class T>
 Node<T>* Node<T>::getNext() const
@@ -59,11 +67,14 @@ Node<T>* Node<T>::getNext() const
    return next;
 } // end getNext
 
-/* End of implementation file.  Add definitions of template
-types we will use (int or string): */
+template<class T>
+const Node<T>& Node<T>::operator++() const
+{
+    if(next)
+        return *next;
+    return *this;
+}
+
+//  End of implementation file.  Add definitions of template types we will use (int or string):
 template class Node<int>;
 template class Node<std::string>;
-
-
-
-

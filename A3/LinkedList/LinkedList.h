@@ -1,6 +1,5 @@
 //  Created by Frank M. Carrano and Tim Henry.
 //  Copyright (c) 2013 __Pearson Education__. All rights reserved.
-//  Edited by Kevin Morris
 
 /** ADT list: Link-based implementation.
      Listing 9-2.
@@ -18,8 +17,8 @@ template<class T>
 class LinkedList : public ListInterface<T>
 {
 private:
-    Node<T>* headPtr {nullptr}; // Pointer to first node in the chain;
-    Node<T>* tailPtr {nullptr}; // (contains the first entry in the list)
+    Node<T>* headPtr {nullptr}; // Pointer to first node in the chain
+    Node<T>* tailPtr {nullptr}; // Pointer to last node in the chain
     int itemCount; // Current count of list items 
     
     // Locates a specified node in this linked list.
@@ -30,14 +29,19 @@ private:
     // @return  A pointer to the node at the given pos.
     Node<T>* getNodeAt(int pos) const;
 
-    /* This function takes an anonymous typed function pointer to
-     * use for traversing the Node list in the proper direction */
-    template<typename F>
-    Node<T>* getNodeRecursive(int pos, Node<T>* curPtr, F f = F()) const
+    // Defined inline for further templating
+    template<class F>
+    Node<T>* getNodeAt(int pos, Node<T>* ptr, F f = F()) const
     {
-        std::cout << "Node: " << curPtr->getItem() << std::endl;
-        return pos > 0 ? getNodeRecursive(pos - 1, (curPtr->*f)(), f) : curPtr;
+        if(!ptr)
+        {
+            std::cout << "FOUND NULL PTR GETNODEAT\n";
+        }
+        std::cout << pos << std::endl;
+        return pos > 1 ? getNodeAt(pos - 1, (ptr->*f)(), f) : ptr;
     }
+
+    bool insertNode(int pos, Node<T>* newNode, Node<T>* subNode);
 
 public:
     LinkedList();
@@ -47,21 +51,22 @@ public:
     bool isEmpty() const;
     int getLength() const;
     bool insert(int newPos, const T& newEntry);
-    bool insert(int newPos, T&& newEntry); // Move/Forward insertion
     bool remove(int pos);
     void clear();
     
     /** @throw PrecondViolatedExcep if pos < 1 or 
     pos > getLength(). */
-    const T& getEntry(int pos) const throw(PrecondViolatedExcep);
-    const T& operator[](int pos) const throw(PrecondViolatedExcep);
+    const T& getEntry(int pos) const
+          throw(PrecondViolatedExcep);
+
+    const T& operator[](int pos) const
+          throw(PrecondViolatedExcep);
 
     /** @throw PrecondViolatedExcep if pos < 1 or 
     pos > getLength(). */
-    void setEntry(int pos, const T& newEntry) throw(PrecondViolatedExcep);
+    void setEntry(int pos, const T& newEntry)
+         throw(PrecondViolatedExcep);
 
 }; // end LinkedList
 
-#endif
-
-
+#endif 
