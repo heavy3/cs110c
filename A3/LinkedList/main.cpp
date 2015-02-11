@@ -20,9 +20,12 @@ void displayList(ListInterface<string>* listPtr)
 void listTester()
 {
 	ListInterface<string>* listPtr = new LinkedList<string>();
+    auto L = static_cast<LinkedList<string>*>(listPtr);
 	cout << "Testing the Link-Based List:" << endl;
 	string data[] = {"one", "two", "three", "four", "five", "six"};
-    cout << "isEmpty: returns " << listPtr->isEmpty() << "; should be 1 (true)" << endl;
+    cout << "isEmpty: returns " << listPtr->isEmpty()
+         << "; should be 1 (true)" << endl;
+
 	for (int i = 0; i < 6; i++)
     {
 		if (listPtr->insert(i + 1, data[i]))
@@ -34,15 +37,30 @@ void listTester()
 	}  // end for
     
     displayList(listPtr);
+
+    cout << "Trav Right: ";
+    L->travBegin();
+
+    cout << "Trav Left: ";
+    L->travEnd();
+
+    cout << "isEmpty: returns " << listPtr->isEmpty()
+         << "; should be 0 (false)" << endl;
+
+    cout << "getLength returns : " << listPtr->getLength()
+         << "; should be 6" << endl;
     
-    cout << "isEmpty: returns " << listPtr->isEmpty() << "; should be 0 (false)" << endl;
-    cout << "getLength returns : " << listPtr->getLength() << "; should be 6" << endl;
-    
-    cout << "The entry at position 4 is " << listPtr->getEntry(4) << "; should be four" << endl;
+    cout << "The entry at position 4 is " << listPtr->getEntry(4)
+         << "; should be four" << endl;
+
     cout << "After replacing the entry at position 3 with XXX: ";
     listPtr->setEntry(3, "XXX");
     displayList(listPtr);
-    
+
+    L->reverse();
+    displayList(listPtr);
+    delete L;
+
 } // end listTester
 
 

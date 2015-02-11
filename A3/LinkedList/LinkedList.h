@@ -11,6 +11,7 @@
 #include "ListInterface.h"
 #include "Node.h"
 #include "PrecondViolatedExcep.h"
+#include <cassert>
 #include <iostream>
 
 template<class T>
@@ -21,28 +22,6 @@ private:
     Node<T>* tailPtr {nullptr}; // Pointer to last node in the chain
     int itemCount; // Current count of list items 
     
-    // Locates a specified node in this linked list.
-    // @pre  pos is the number of the desired node;
-    //         pos >= 1 and pos <= itemCount.
-    // @post  The node is found and a pointer to it is returned.
-    // @param pos  The number of the node to locate.
-    // @return  A pointer to the node at the given pos.
-    Node<T>* getNodeAt(int pos) const;
-
-    // Defined inline for further templating
-    template<class F>
-    Node<T>* getNodeAt(int pos, Node<T>* ptr, F f = F()) const
-    {
-        if(!ptr)
-        {
-            std::cout << "FOUND NULL PTR GETNODEAT\n";
-        }
-        std::cout << pos << std::endl;
-        return pos > 1 ? getNodeAt(pos - 1, (ptr->*f)(), f) : ptr;
-    }
-
-    bool insertNode(int pos, Node<T>* newNode, Node<T>* subNode);
-
 public:
     LinkedList();
     LinkedList(const LinkedList<T>& aList);
@@ -66,6 +45,51 @@ public:
     pos > getLength(). */
     void setEntry(int pos, const T& newEntry)
          throw(PrecondViolatedExcep);
+
+    void reverse();
+
+    // Traversal tests. These print out the list in both orders.
+    void travBegin()
+    {
+        for(auto p = headPtr; p != nullptr; p = p->getNext())
+            cout << p->getItem() << " ";
+        cout << endl;
+    }
+    void travEnd()
+    {
+        for(auto p = tailPtr; p != nullptr; p = p->getPrev())
+            cout << p->getItem() << " ";
+        cout << endl;
+    }
+
+
+private:
+    // Locates a specified node in this linked list.
+    // @pre  pos is the number of the desired node;
+    //         pos >= 1 and pos <= itemCount.
+    // @post  The node is found and a pointer to it is returned.
+    // @param pos  The number of the node to locate.
+    // @return  A pointer to the node at the given pos.
+    Node<T>* getNodeAt(int pos) const;
+
+    /* Recursive node search function
+    @pos    The position of the desired node;
+            This value is reduced by 1 per recursion call.
+    @ptr    The initial pointer: headPtr or tailPtr.
+    @f      The corresponding functor (or function pointer) for @ptr.
+    This function is called indirectly by getNodeAt(pos), with the
+    proper ptr and function pointer depending on pos <= size / 2 or not */
+    template<class F>
+    Node<T>* getNodeAt(int pos, Node<T>* ptr, F f = F()) const;
+
+    bool insertNode(int pos, Node<T>* newNode, Node<T>* subNode);
+
+    void swapNodes(Node<T>* a, Node<T>* b);
+
+    Node<T>* grandparent(Node<T>* target);
+    Node<T>* grandchild(Node<T>* target);
+    Node<T>* parent(Node<T>* target);
+    Node<T>* child(Node<T>* target);
 
 }; // end LinkedList
 

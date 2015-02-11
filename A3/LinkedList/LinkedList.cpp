@@ -57,7 +57,15 @@ LinkedList<T>::LinkedList(const LinkedList<T>& aList)
 template<class T>
 LinkedList<T>::~LinkedList()
 {
-    clear();
+    /* Traverse list and delete every allocation */
+    auto p = headPtr;
+    while(p)
+    {
+        auto t = p;
+        p = p->getNext();
+        delete t;
+    }
+    // clear();
 }  // end destructor
 
 template<class T>
@@ -78,7 +86,7 @@ bool LinkedList<T>::insert(int newPos, const T& newEntry)
     bool ableToInsert = (newPos >= 1) && (newPos <= itemCount + 1);
 
     // headPTr and tailPtr are null at this point, special case to jump
-    if(itemCount == 0)
+    if(isEmpty())
     {
         headPtr = tailPtr = new Node<T>(newEntry);
         ++itemCount;
@@ -90,22 +98,25 @@ bool LinkedList<T>::insert(int newPos, const T& newEntry)
         // Create a new node containing the new entry 
         Node<T>* newNodePtr = new Node<T>(newEntry);  
 
-        // This implementation ignores newPos, and always put the new
-        // item at the beginning of the list.
-        // Your assignment is to correctly insert the item into newPos
-        std::cout << "NewPos: " << newPos << std::endl;
+        // Create a current pointer to a node depending on
+        // the binary split decision. The traversal will start
+        // at the closer end of the list
+        Node<T>* cur = getNodeAt(newPos - 1);
 
-        auto node = getNodeAt(newPos - 1);
-        std::cout << "Inserting at: " << node->getItem() << std::endl;
-        newNodePtr->setNext(node);
-        if(node->getPrev())
+        if(cur->getNext())
         {
-            node->getPrev()->setNext(newNodePtr);
-            newNodePtr->setPrev(node->getPrev());
+            newNodePtr->setNext(cur->getNext());
+            cur->getNext()->setPrev(newNodePtr);
         }
-        node->setPrev(newNodePtr);
+
+        cur->setNext(newNodePtr);
+        newNodePtr->setPrev(cur);
 
         ++itemCount;  // Increase count of entries
+
+        if(tailPtr->getNext())
+            tailPtr = tailPtr->getNext();
+
     }  // end if
     
     return ableToInsert;
@@ -123,6 +134,7 @@ bool LinkedList<T>::remove(int pos)
             // Remove the first node in the chain
             curPtr = headPtr; // Save pointer to node
             headPtr = headPtr->getNext();
+            headPtr->setPrev(curPtr->getPrev());
         }
         else
         {
@@ -135,9 +147,10 @@ bool LinkedList<T>::remove(int pos)
             // Disconnect indicated node from chain by connecting the
             // prior node with the one after
             prevPtr->setNext(curPtr->getNext());
+            curPtr->getNext()->setPrev(prevPtr);
         }  // end if
         
-        // Return node to system
+        // Return node to system - [is this step necessary?]
         curPtr->setNext(nullptr);
         delete curPtr;
         curPtr = nullptr;
@@ -201,6 +214,26 @@ throw(PrecondViolatedExcep)
 }  // end setEntry
 
 template<class T>
+void LinkedList<T>::reverse()
+{
+    if(!headPtr)
+        return;
+
+    auto head = headPtr, tail = tailPtr;
+
+    for(int i = 0; i < itemCount / 2; ++i)
+    {
+        cout << "Loop\n";
+        swapNodes(head, tail);
+        cout << "YOLO\n";
+
+        head = headPtr->getNext();
+        tail = tailPtr->getPrev();
+    }
+}
+
+/* Private Node helper functions */
+template<class T>
 Node<T>* LinkedList<T>::getNodeAt(int pos) const
 {
     // Debugging check of precondition
@@ -209,13 +242,76 @@ Node<T>* LinkedList<T>::getNodeAt(int pos) const
     if(pos == 1)
         return headPtr;
 
-    // Count from the beginning of the chain
-    if(pos <= getLength() / 2)
+    if(pos <= itemCount / 2)
         return getNodeAt(pos, headPtr, &Node<T>::getNext);
-
-    return getNodeAt(getLength() - pos, tailPtr, &Node<T>::getPrev);
+    return getNodeAt(itemCount - pos + 1, tailPtr, &Node<T>::getPrev);
 }  // end getNodeAt
 
+
+// This function recursively calls a given node and function pointer
+// until pos is reduced to <= 1, then returns the current pointer
+template<class T> template<class F>
+Node<T>* LinkedList<T>::getNodeAt(int pos, Node<T>* ptr, F f) const
+{
+    return pos > 1 ? getNodeAt(pos - 1, (ptr->*f)(), f) : ptr;
+}
+
+template<class T>
+bool LinkedList<T>::insertNode(int pos, Node<T>* newNode, Node<T>* subNode)
+{
+    if(pos < 1 || pos > itemCount + 1)
+        return false;
+
+    return true;
+}
+/* End Private Node helper functions */
+
+template<class T>
+void LinkedList<T>::swapNodes(Node<T>* a, Node<T>* b)
+{
+    // Li = Left counter
+    // Ri = Right counter
+    assert(a && b);
+    auto p = a->getNext(); // Li + 1
+    auto e = b->getPrev(); // Ri - 1
+
+    cout << "b setPrev to " << p->getPrev()->getPrev() << endl;
+    b->setPrev(p->getPrev()->getPrev());
+
+    cout << "a setPrev to " << e << endl;
+    a->setPrev(e);
+    b->setNext(p);
+    a->setNext(e->getNext()->getNext());
+
+}
+
+/* Private sibling helper functions */
+template<class T>
+Node<T>* LinkedList<T>::grandparent(Node<T>* target)
+{
+    return target->getPrev() ? target->getPrev()->getPrev() : nullptr;
+}
+
+template<class T>
+Node<T>* LinkedList<T>::grandchild(Node<T>* target)
+{
+    return target->getNext() ? target->getNext()->getNext() : nullptr;
+}
+
+template<class T>
+Node<T>* LinkedList<T>::parent(Node<T>* target)
+{
+    return target->getPrev();
+}
+
+template<class T>
+Node<T>* LinkedList<T>::child(Node<T>* target)
+{
+    return target->getNext();
+}
+
+
+/* End sibling helper functions */
 
 // End of implementation file.  To get this to compile on hills,
 // add definitions of template types we will use (int or string now,
