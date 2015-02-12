@@ -54,23 +54,14 @@ Node<T>* Node<T>::getPrev() const
 }
 
 template<class T>
-const Node<T>* Node<T>::operator--() const
-{
-    return prev;
-}
-
-template<class T>
 Node<T>* Node<T>::getNext() const
 {
    return next;
 } // end getNext
 
-template<class T>
-const Node<T>* Node<T>::operator++() const
-{
-    return next;
-}
-
-//  End of implementation file.  Add definitions of template types we will use (int or string):
+//  End of implementation file.  Add definitions of template types
+//  we will use (int or string):
 template class Node<int>;
 template class Node<std::string>;
+
+

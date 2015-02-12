@@ -20,7 +20,7 @@ LinkedList<T>::LinkedList(const LinkedList<T>& aList)
     : itemCount(aList.itemCount)
 {
     // Points to node in original chain
-    Node<T>* origChainPtr = aList.headPtr;  
+    Node<T>* origChainPtr = aList.headPtr; 
     if (origChainPtr == nullptr)
     {
         // Copy first node
@@ -34,11 +34,8 @@ LinkedList<T>::LinkedList(const LinkedList<T>& aList)
         origChainPtr = origChainPtr->getNext();
         while (origChainPtr != nullptr)
         {
-            // Get next item from original chain
-            T nextItem = origChainPtr->getItem();
-            
             // Create a new node containing the next item 
-            Node<T>* newNodePtr = new Node<T>(nextItem);  
+            Node<T>* newNodePtr = new Node<T>(origChainPtr->getItem());  
             
             // Link new node to end of new chain
             newChainPtr->setNext(newNodePtr); 
@@ -49,8 +46,9 @@ LinkedList<T>::LinkedList(const LinkedList<T>& aList)
             // Advance original-chain pointer
             origChainPtr = origChainPtr->getNext();
         }  // end while
-            
-    newChainPtr->setNext(nullptr);  // Flag end of chain
+
+        newChainPtr->setNext(nullptr);  // Flag end of chain
+        tailPtr = newChainPtr; // Set tailPtr to the end of chain
     }  // end if
 }  // end copy constructor
 
@@ -95,8 +93,19 @@ bool LinkedList<T>::insert(int newPos, const T& newEntry)
 
     if (ableToInsert)
     {
+
         // Create a new node containing the new entry 
         Node<T>* newNodePtr = new Node<T>(newEntry);  
+
+        // A sloppy fix to pos = 1 insertion
+        if(newPos == 1)
+        {
+            newNodePtr->setNext(headPtr);
+            headPtr->setPrev(newNodePtr);
+            headPtr = newNodePtr;
+            ++itemCount;
+            return ableToInsert;
+        }
 
         // Create a current pointer to a node depending on
         // the binary split decision. The traversal will start
@@ -134,20 +143,28 @@ bool LinkedList<T>::remove(int pos)
             // Remove the first node in the chain
             curPtr = headPtr; // Save pointer to node
             headPtr = headPtr->getNext();
-            headPtr->setPrev(curPtr->getPrev());
+            if(headPtr)
+                headPtr->setPrev(nullptr);
         }
         else
         {
             // Find node that is before the one to delete
             Node<T>* prevPtr = getNodeAt(pos - 1);
-            
             // Point to node to delete
             curPtr = prevPtr->getNext();
             
             // Disconnect indicated node from chain by connecting the
             // prior node with the one after
             prevPtr->setNext(curPtr->getNext());
-            curPtr->getNext()->setPrev(prevPtr);
+            if(curPtr->getNext())
+            {
+                curPtr->getNext()->setPrev(prevPtr);
+            }
+            else
+            {
+                prevPtr->setNext(nullptr);
+                tailPtr = prevPtr;
+            }
         }  // end if
         
         // Return node to system - [is this step necessary?]
@@ -213,26 +230,29 @@ throw(PrecondViolatedExcep)
     }  // end if
 }  // end setEntry
 
+/* Traverses the list and swaps pointers to reverse the list
+until the current pointer reaches a null state (End of the list) */
 template<class T>
 void LinkedList<T>::reverse()
 {
     if(!headPtr)
         return;
 
-    auto head = headPtr, tail = tailPtr;
-
-    for(int i = 0; i < itemCount / 2; ++i)
+    auto c = headPtr; // Current pointer
+    Node<T>* temp = nullptr;
+    // for i = 
+    while(c)
     {
-        cout << "Loop\n";
-        swapNodes(head, tail);
-        cout << "YOLO\n";
-
-        head = headPtr->getNext();
-        tail = tailPtr->getPrev();
+        temp = c->getPrev();
+        c->setPrev(c->getNext());
+        c->setNext(temp);
+        c = c->getPrev();
     }
+
+    tailPtr = headPtr;
+    headPtr = temp->getPrev();
 }
 
-/* Private Node helper functions */
 template<class T>
 Node<T>* LinkedList<T>::getNodeAt(int pos) const
 {
@@ -246,7 +266,6 @@ Node<T>* LinkedList<T>::getNodeAt(int pos) const
         return getNodeAt(pos, headPtr, &Node<T>::getNext);
     return getNodeAt(itemCount - pos + 1, tailPtr, &Node<T>::getPrev);
 }  // end getNodeAt
-
 
 // This function recursively calls a given node and function pointer
 // until pos is reduced to <= 1, then returns the current pointer
@@ -264,26 +283,8 @@ bool LinkedList<T>::insertNode(int pos, Node<T>* newNode, Node<T>* subNode)
 
     return true;
 }
+
 /* End Private Node helper functions */
-
-template<class T>
-void LinkedList<T>::swapNodes(Node<T>* a, Node<T>* b)
-{
-    // Li = Left counter
-    // Ri = Right counter
-    assert(a && b);
-    auto p = a->getNext(); // Li + 1
-    auto e = b->getPrev(); // Ri - 1
-
-    cout << "b setPrev to " << p->getPrev()->getPrev() << endl;
-    b->setPrev(p->getPrev()->getPrev());
-
-    cout << "a setPrev to " << e << endl;
-    a->setPrev(e);
-    b->setNext(p);
-    a->setNext(e->getNext()->getNext());
-
-}
 
 /* Private sibling helper functions */
 template<class T>

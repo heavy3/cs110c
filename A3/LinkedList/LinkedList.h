@@ -35,33 +35,15 @@ public:
     
     /** @throw PrecondViolatedExcep if pos < 1 or 
     pos > getLength(). */
-    const T& getEntry(int pos) const
-          throw(PrecondViolatedExcep);
+    const T& getEntry(int pos) const throw(PrecondViolatedExcep);
 
-    const T& operator[](int pos) const
-          throw(PrecondViolatedExcep);
+    const T& operator[](int pos) const throw(PrecondViolatedExcep);
 
     /** @throw PrecondViolatedExcep if pos < 1 or 
     pos > getLength(). */
-    void setEntry(int pos, const T& newEntry)
-         throw(PrecondViolatedExcep);
+    void setEntry(int pos, const T& newEntry) throw(PrecondViolatedExcep);
 
     void reverse();
-
-    // Traversal tests. These print out the list in both orders.
-    void travBegin()
-    {
-        for(auto p = headPtr; p != nullptr; p = p->getNext())
-            cout << p->getItem() << " ";
-        cout << endl;
-    }
-    void travEnd()
-    {
-        for(auto p = tailPtr; p != nullptr; p = p->getPrev())
-            cout << p->getItem() << " ";
-        cout << endl;
-    }
-
 
 private:
     // Locates a specified node in this linked list.
@@ -84,7 +66,6 @@ private:
 
     bool insertNode(int pos, Node<T>* newNode, Node<T>* subNode);
 
-    void swapNodes(Node<T>* a, Node<T>* b);
 
     Node<T>* grandparent(Node<T>* target);
     Node<T>* grandchild(Node<T>* target);

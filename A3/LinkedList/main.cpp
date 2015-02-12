@@ -9,7 +9,13 @@ using namespace std;
 
 void displayList(ListInterface<string>* listPtr)
 {
-	cout << "The list contains " << endl;
+    if(listPtr->getLength() == 0)
+    {
+        cout << "List is currently empty.\n";
+        return;
+    }
+
+	cout << "The list contains (size = " << listPtr->getLength() << "): ";
     for (int pos = 1; pos <= listPtr->getLength(); pos++)
     {
         cout << listPtr->getEntry(pos) << " ";
@@ -19,8 +25,11 @@ void displayList(ListInterface<string>* listPtr)
 
 void listTester()
 {
+    // (listPtr == L) is true
 	ListInterface<string>* listPtr = new LinkedList<string>();
+    // Create a cast to the static type for higher usage
     auto L = static_cast<LinkedList<string>*>(listPtr);
+
 	cout << "Testing the Link-Based List:" << endl;
 	string data[] = {"one", "two", "three", "four", "five", "six"};
     cout << "isEmpty: returns " << listPtr->isEmpty()
@@ -37,14 +46,7 @@ void listTester()
 	}  // end for
     
     displayList(listPtr);
-
-    cout << "Trav Right: ";
-    L->travBegin();
-
-    cout << "Trav Left: ";
-    L->travEnd();
-
-    cout << "isEmpty: returns " << listPtr->isEmpty()
+    cout << "\nisEmpty: returns " << listPtr->isEmpty()
          << "; should be 0 (false)" << endl;
 
     cout << "getLength returns : " << listPtr->getLength()
@@ -57,8 +59,54 @@ void listTester()
     listPtr->setEntry(3, "XXX");
     displayList(listPtr);
 
+    cout << "Reversing list once...\n";
     L->reverse();
     displayList(listPtr);
+
+    cout << "Reversing list back to original state...\n";
+    L->reverse();
+    displayList(listPtr);
+
+    cout << "\nTesting removals...\n";
+    cout << "Deleting 6...\n";
+    L->remove(6);
+    displayList(listPtr);
+
+    cout << "Deleting 2 again...\n";
+    L->remove(2);
+    displayList(listPtr);
+
+    cout << "Deleting 1...\n";
+    L->remove(1);
+    displayList(listPtr);
+
+    cout << "Deleting 2...\n";
+    L->remove(2);
+    displayList(listPtr);
+
+    cout << "Deleting 2...\n";
+    L->remove(2);
+    displayList(listPtr);
+
+    cout << "Deleting 1...\n";
+    L->remove(1); // List empty now.
+    displayList(listPtr);
+
+    cout << "\nRemoving something that doesn't exist: "
+         << L->remove(1) << endl;
+
+    // Test more inserts after removals.
+    L->insert(1, "Haha.");
+    cout << "Inserted 'Haha.'\n";
+    L->insert(2, "Lol.");
+    cout << "Inserted 'Lol.'\n";
+    L->insert(1, "Heh.");
+    cout << "inserted 'Heh.'\n";
+
+    cout << "Operator utility: ";
+    cout << (*L)[1] << endl;
+
+    // Dealloc memory
     delete L;
 
 } // end listTester
@@ -88,3 +136,4 @@ getLength returns : 6; should be 6
 The entry at position 4 is four; should be four
 After replacing the entry at position 3 with XXX: The list contains 
 one two XXX four five six */
+

@@ -1,0 +1,47 @@
+Testing the Link-Based List:
+isEmpty: returns 1; should be 1 (true)
+Inserted one at position 1
+Inserted two at position 2
+Inserted three at position 3
+Inserted four at position 4
+Inserted five at position 5
+Inserted six at position 6
+The list contains (size = 6): one two three four five six 
+
+
+isEmpty: returns 0; should be 0 (false)
+getLength returns : 6; should be 6
+The entry at position 4 is four; should be four
+After replacing the entry at position 3 with XXX: The list contains (size = 6): one two XXX four five six 
+
+Reversing list once...
+The list contains (size = 6): six five four XXX two one 
+
+Reversing list back to original state...
+The list contains (size = 6): one two XXX four five six 
+
+
+Testing removals...
+Deleting 6...
+The list contains (size = 5): one two XXX four five 
+
+Deleting 2 again...
+The list contains (size = 4): one XXX four five 
+
+Deleting 1...
+The list contains (size = 3): XXX four five 
+
+Deleting 2...
+The list contains (size = 2): XXX five 
+
+Deleting 2...
+The list contains (size = 1): XXX 
+
+Deleting 1...
+List is currently empty.
+
+Removing something that doesn't exist: 0
+Inserted 'Haha.'
+Inserted 'Lol.'
+inserted 'Heh.'
+Operator utility: Heh.

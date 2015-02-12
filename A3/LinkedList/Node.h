@@ -24,16 +24,9 @@ public:
     void setNext(Node<T>* nextNodePtr);
     const T& getItem() const;
 
-    // A getter function for the parent node
     Node<T>* getPrev() const;
-
-    // An iteration function, returns the reference of parent node
-    const Node<T>* operator--() const;
-
     Node<T>* getNext() const;
 
-    // An iteration function, returns the reference of next node
-    const Node<T>* operator++() const;
 
 }; // end Node
 
