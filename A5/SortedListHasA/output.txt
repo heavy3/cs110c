@@ -1,0 +1,13 @@
+[kevr@bit SortedListHasA]$ ./exec 
+Enter a score (negative to quit): test
+You did not enter a valid integer
+Enter a score (negative to quit): 83
+High Scores: 83 
+Enter a score (negative to quit): 92
+High Scores: 92 83 
+Enter a score (negative to quit): 64
+High Scores: 92 83 64 
+Enter a score (negative to quit): 32
+High Scores: 92 83 64 32 
+Enter a score (negative to quit): -1
+Good bye! The highest score was 92

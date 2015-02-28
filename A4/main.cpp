@@ -12,59 +12,93 @@
 #include <typeinfo>
 using namespace std;
 
-template<typename T, typename... Args>
-unique_ptr<T> make_unique(Args&... args)
+// Initialize Complexity::O
+std::vector<uint> Complexity::O {0};
+
+template<typename T>
+void printArray(T *beg, T* const end)
 {
-    return unique_ptr<T>(new T(forward<Args>(args)...));
+    while(beg <= end)
+        cout << *beg++ << ' ';
+    cout << endl;
 }
 
-/* Main helper functions */
-template<typename T>
-void noop(T *src, uint size) {}
-
-template<typename T, typename Functor = decltype(noop<T>)>
-void auditSort(Functor fn = &noop)
+uint sum(const std::vector<uint>& v)
 {
-    auto& f = *fn;
+    uint s = 0;
+    for(auto& e : v)
+        s += e;
+    return s;
+}
+
+template<typename T>
+bool sorted(T *beg, T* const end)
+{
+    while(beg < end)
+    {
+        if(*(beg + 1) < *beg)
+            return false;
+        ++beg;
+    }
+    return true;
+}
+
+template<typename T>
+void randomArray(T *beg, T *end)
+{
+    random_device rd;
+    uniform_int_distribution<T> dist(1, 100);
+    while(beg <= end)
+        *beg++ = dist(rd);
+}
+
+template<typename T, typename Functor>
+void auditSort(const string& sortName, Functor fn)
+{
+    cout << "\n== " << sortName << " ==\n";
+    auto& f = *fn; // Just bind *fn to f for convenience
     random_device rd;
 
     // Distribution to random a number 1-100
     uniform_int_distribution<int> dist(1, 100);
 
-    for(uint i = 2; i <= 4; ++i)
+    for(uint i = 2; i <= 6; ++i)
     {
         const uint n = 2 << i;
 
         // Allocate data of size (2 << i) and initialize everything to random
         T *data = new T[n];
-        for(uint k = 0; k < n; ++k)
+
+        vector<uint> passes;
+        cout << "\nRun Size " << n << endl;
+
+        for(int i = 0; i < 4; ++i)
         {
-            data[k] = dist(rd);
-            cout << data[k] << ' ';
+            passes.push_back(0);
+            // Create randomized array
+            randomArray(data, &data[n - 1]);
+
+            Complexity::O.clear();
+            f(data, &data[n - 1]); // Call sort function with 0 .. n - 1
+            passes.back() = sum(Complexity::O);
+            cout << "Pass " << i + 1 << "... n = " << passes.back() << ", "
+                 << "Sorted: " << sorted(data, &data[n - 1]) << endl;
         }
-        cout << endl;
 
-        f(data, 0, n);
-
-        for(uint k = 0; k < n; ++k)
-            cout << data[k] << ' ';
-        cout << endl;
+        cout << "Average: " << sum(passes) / passes.size() << endl;
 
         delete [] data;
     }
 
+    cout << endl;
 }
 
 /* Main execution point */
 int main(int argc, char *argv[])
 {
-    random_device rd;
-
-    auto fn = &Complexity::insertion<int>;
-
-    auditSort<int>(fn);
-    auditSort<int>(&Complexity::merge<int>);
-    //auditSort<int>(&Complexity::bucket<int>);
+    auditSort<int>("Insertion", &Complexity::insertion<int>);
+    auditSort<int>("Merge", &Complexity::mergeSort<int>);
+    auditSort<int>("Bucket", &Complexity::bucket<int>);
 
     return 0;
 }

@@ -1,0 +1,114 @@
+
+== Insertion ==
+
+Run Size 8
+Pass 1... n = 60, Sorted: 1
+Pass 2... n = 55, Sorted: 1
+Pass 3... n = 56, Sorted: 1
+Pass 4... n = 61, Sorted: 1
+Average: 58
+
+Run Size 16
+Pass 1... n = 189, Sorted: 1
+Pass 2... n = 183, Sorted: 1
+Pass 3... n = 188, Sorted: 1
+Pass 4... n = 191, Sorted: 1
+Average: 187
+
+Run Size 32
+Pass 1... n = 654, Sorted: 1
+Pass 2... n = 656, Sorted: 1
+Pass 3... n = 637, Sorted: 1
+Pass 4... n = 653, Sorted: 1
+Average: 650
+
+Run Size 64
+Pass 1... n = 2369, Sorted: 1
+Pass 2... n = 2407, Sorted: 1
+Pass 3... n = 2359, Sorted: 1
+Pass 4... n = 2371, Sorted: 1
+Average: 2376
+
+Run Size 128
+Pass 1... n = 8866, Sorted: 1
+Pass 2... n = 8922, Sorted: 1
+Pass 3... n = 8887, Sorted: 1
+Pass 4... n = 8887, Sorted: 1
+Average: 8890
+
+
+== Merge ==
+
+Run Size 8
+Pass 1... n = 24, Sorted: 1
+Pass 2... n = 24, Sorted: 1
+Pass 3... n = 24, Sorted: 1
+Pass 4... n = 24, Sorted: 1
+Average: 24
+
+Run Size 16
+Pass 1... n = 64, Sorted: 1
+Pass 2... n = 64, Sorted: 1
+Pass 3... n = 64, Sorted: 1
+Pass 4... n = 64, Sorted: 1
+Average: 64
+
+Run Size 32
+Pass 1... n = 160, Sorted: 1
+Pass 2... n = 160, Sorted: 1
+Pass 3... n = 160, Sorted: 1
+Pass 4... n = 160, Sorted: 1
+Average: 160
+
+Run Size 64
+Pass 1... n = 384, Sorted: 1
+Pass 2... n = 384, Sorted: 1
+Pass 3... n = 384, Sorted: 1
+Pass 4... n = 384, Sorted: 1
+Average: 384
+
+Run Size 128
+Pass 1... n = 896, Sorted: 1
+Pass 2... n = 896, Sorted: 1
+Pass 3... n = 896, Sorted: 1
+Pass 4... n = 896, Sorted: 1
+Average: 896
+
+
+== Bucket ==
+
+Run Size 8
+Pass 1... n = 16, Sorted: 1
+Pass 2... n = 16, Sorted: 1
+Pass 3... n = 16, Sorted: 1
+Pass 4... n = 16, Sorted: 1
+Average: 16
+
+Run Size 16
+Pass 1... n = 32, Sorted: 1
+Pass 2... n = 32, Sorted: 1
+Pass 3... n = 32, Sorted: 1
+Pass 4... n = 32, Sorted: 1
+Average: 32
+
+Run Size 32
+Pass 1... n = 64, Sorted: 1
+Pass 2... n = 64, Sorted: 1
+Pass 3... n = 64, Sorted: 1
+Pass 4... n = 64, Sorted: 1
+Average: 64
+
+Run Size 64
+Pass 1... n = 128, Sorted: 1
+Pass 2... n = 128, Sorted: 1
+Pass 3... n = 128, Sorted: 1
+Pass 4... n = 128, Sorted: 1
+Average: 128
+
+Run Size 128
+Pass 1... n = 256, Sorted: 1
+Pass 2... n = 256, Sorted: 1
+Pass 3... n = 256, Sorted: 1
+Pass 4... n = 256, Sorted: 1
+Average: 256
+
