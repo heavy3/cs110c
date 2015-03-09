@@ -20,6 +20,8 @@ namespace std
     }
 };
 
+#include <iostream>
+
 template<typename T>
 class Stack
 {
@@ -30,61 +32,37 @@ private:
         T value;
         std::unique_ptr<Node> next {nullptr};
 
-        Node(const T& newValue) : value(newValue) {}
-        Node(T&& newValue) : value(std::move(newValue)) {}
-
-        Node(const T& newValue, std::unique_ptr<Node>&& child)
-            : value(newValue)
+        Node(T v) : value(std::move(v)) {}
+        Node(T v, std::unique_ptr<Node> child)
+            : value(std::move(v))
             , next(std::move(child)) // Move unique ptr
-        {
-        }
-
-        Node(T&& newValue, std::unique_ptr<Node>&& child)
-            : value(std::move(newValue))
-            , next(std::move(child)) // Move unique ptr
-        {
-        }
+        { /* Initialization constructor */ }
     };
 
     std::unique_ptr<Node> head {nullptr};
 
 public:
 
-    void push(const T& value)
+    void push(T value)
     {
-        if(!head)
-            head = std::make_unique<Node>(value);
-
-        auto newNode = std::make_unique<Node>(value, std::move(head));
-        head = std::move(newNode);
+        head = std::make_unique<Node>(std::move(value), std::move(head));
     }
 
-    void push(T&& value)
-    {
-        if(!head)
-            head = std::make_unique<Node>(std::move(value));
-
-        auto newNode = std::make_unique<Node>(std::forward<T>(value),
-                                              std::move(head));
-        head = std::move(newNode);
-    }
-
+    // Move a value from the head of the stack and delete that node
     T pop()
     {
-        if(!head)
+        if(empty())
             throw std::domain_error("Stack<T> empty when attempting to pop");
 
         T value { std::move(head->value) };
-        
-        auto old = std::move(head);
-        head = std::move(old->next);
+        head = std::move(head->next);
 
         return value;
     }
 
     const T& peek() const
     {
-        if(!head)
+        if(empty())
             throw std::domain_error("Stack<T> empty when peeking");
 
         return head->value;
@@ -92,7 +70,7 @@ public:
 
     const bool empty() const
     {
-        return head != nullptr;
+        return !head;
     }
 
 };

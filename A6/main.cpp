@@ -8,91 +8,83 @@ Copyright (C) 2015 Kevin Morris
 **/
 #include "stack.hpp"
 #include "convert.hpp"
-#include <iostream>
-#include <unordered_map>
 #include <set>
+#include <unordered_map>
+#include <iostream>
 using namespace std;
 
-template<typename T>
-ostream& operator<<(ostream& os, const Stack<T>& stack)
-{
-    /* Iterate through stack and print out values */
-    return os;
-}
+int add(int a, int b) { return a + b; }
+int sub(int a, int b) { return a - b; }
+int mul(int a, int b) { return a * b; }
+int divide(int a, int b) { return a / b; }
 
-// Priorities
-const unordered_map<char, int> prio = {
-    {'(', 6}, {')', 5}, {'*', 4}, {'/', 3}, {'+', 2}, {'-', 1}
+unordered_map<char, decltype(&add)> operation {
+    {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}
 };
 
-void push(Stack<char>& stack, string& pf, char ch)
+void evaluate()
 {
-    if(stack.empty())
-    {
-        stack.push(ch);
-        return;
-    }
-
-    while(!stack.empty() && prio.at(ch) >= prio.at(stack.peek()))
-        pf.push_back(stack.pop());
-    stack.push(ch);
-}
-
-void pop(Stack<char>& stack, string& pf, char ch)
-{
-    while(!stack.empty() && stack.peek() != '(')
-        pf.push_back(stack.pop());
-}
-
-// Operations
-unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
-    {'(', push}, {')', pop}
-};
-
-// Valid decimal number characters
-set<char> numbers { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
-
-string toPostfix(string infix)
-{
-    Stack<char> stack;
-    string postfix;
-
-    for(auto it = infix.begin(); it != infix.end(); ++it)
-    {
-        if(*it == ' ' || *it == '\t')
-            continue;
-
-        if(ops.find(*it) == ops.end())
-        {
-            string number;
-            while(numbers.find(*it) != numbers.end())
-                number.push_back(*it++);
-            postfix += number;
-        }
-        else
-        {
-            ops[*it](stack, postfix, *it);
-        }
-
-        postfix.push_back(' ');
-    }
-
-    while(!stack.empty())
-        postfix.push_back(stack.pop());
-
-    return postfix;
-}
-
-int main(int argc, char *argv[])
-{
-    Stack<string> stack;
-
     string infix;
     cout << "Enter an infix expression: ";
     getline(cin, infix);
 
-    auto postfix = toPostfix(infix);
+    cout << "Evaluating " << infix << "...\n";
+    string postfix = toPostfix(move(infix));
+
     cout << "Postfix: " << postfix << endl;
+
+    Stack<string> st;
+
+    for(auto i = postfix.begin(); i != postfix.end(); ++i)
+    {
+        if(*i == ' ') continue;
+
+
+        if(prio.find(*i) == prio.end())
+        {
+            string num;
+            while(i != postfix.end() && numbers.find(*i) != numbers.end())
+                num.push_back(*i++);
+            st.push(move(num));
+        }
+        else
+        {
+            auto rhs = st.pop();
+            auto lhs = st.pop();
+            st.push(to_string(operation[*i](stoi(lhs), stoi(rhs))));
+        }
+    }
+
+    cout << st.pop() << endl;
+
+}
+
+int main(int argc, char *argv[])
+{
+    evaluate();
+    /*
+    // Push L, A onto the st ack
+    stack.push('L');
+    stack.push('A');
+
+    // Should print 0, A, 0, L
+    cout << stack.empty() << endl;
+    cout << stack.pop() << endl;
+    cout << stack.empty() << endl;
+    cout << stack.pop() << endl;
+
+    // Should print 1, throw error
+    cout << stack.empty() << endl;
+    cout << stack.pop() << endl;
+    
+    // Should never happen
+    cout << stack.empty() << endl;
+    cout << stack.pop() << endl;
+    */
+
     return 0;
 }
+
+
+
 
