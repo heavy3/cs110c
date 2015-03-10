@@ -33,25 +33,25 @@ void evaluate()
 
     cout << "Postfix: " << postfix << endl;
 
-    Stack<string> st;
+    Stack<int> st;
 
     for(auto i = postfix.begin(); i != postfix.end(); ++i)
     {
         if(*i == ' ') continue;
-
 
         if(prio.find(*i) == prio.end())
         {
             string num;
             while(i != postfix.end() && numbers.find(*i) != numbers.end())
                 num.push_back(*i++);
-            st.push(move(num));
+            st.push(stoi(num));
         }
         else
         {
             auto rhs = st.pop();
-            auto lhs = st.pop();
-            st.push(to_string(operation[*i](stoi(lhs), stoi(rhs))));
+            auto lhs = st.empty() ? 0 : st.pop();
+
+            st.push(operation[*i](lhs, rhs));
         }
     }
 

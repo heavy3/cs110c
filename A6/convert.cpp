@@ -36,8 +36,9 @@ string toPostfix(string infix)
 {
     Stack<char> st; // Operation stack
     string pf; // postfix
-    bool isOperand = true;
-    bool isOperator = true;
+#ifdef TEST_OPLAST
+    bool opLast = false;
+#endif
 
     // Iterate through infix string
     for(auto i = infix.begin(); i != infix.end(); ++i)
@@ -47,21 +48,29 @@ string toPostfix(string infix)
 
         if(ops.find(*i) == ops.end())
         {
-            if(!isOperand)
-                throw domain_error("Invalid syntax");
-            isOperand = !isOperand;
+#ifdef TEST_OPLAST
+            if(pf.size() && !opLast)
+                throw std::domain_error("Invalid syntax");
+#endif
 
             pf.append(getOperand(i, infix.end()));
             --i;
             pf.push_back(' ');
+#ifdef TEST_OPLAST
+            opLast = false;
+#endif
         }
         else
         {
-            if(!isOperand)
-                throw domain_error("Invalid syntax");
-            isOperator = !isOperator;
+#ifdef TEST_OPLAST
+            if(opLast)
+                throw std::domain_error("Invalid syntax");
+#endif
 
             ops[*i](st, pf, *i);
+#ifdef TEST_OPLAST
+            opLast = true;
+#endif
         }
 
     }
