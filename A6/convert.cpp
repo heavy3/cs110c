@@ -6,8 +6,6 @@ A set of helper functions and structures for converting things.
 Copyright (C) 2015 Kevin Morris
 **/
 #include "convert.hpp"
-#include <set>
-#include <unordered_map>
 #include <iostream>
 using namespace std;
 
@@ -18,66 +16,106 @@ unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
     {'/', push}, {'+', push}, {'-', push}
 };
 
-template<typename Begin, typename End>
-string getOperand(Begin& b, End e)
+static std::set<char> num {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+}, unary {'-', '+'};
+
+template<class C, class T>
+bool exists(const C& c, const T& t)
+{
+    return c.find(t) != c.end();
+}
+
+template<class Begin, class End, class Iter>
+bool isUnary(Begin s, End e, Iter i)
+{
+    if(!exists(unary, *i))
+        return false;
+
+    return i == s ? true : *--i == '(';
+}
+
+template<class Iter, class End>
+Iter find(Iter i, End e)
+{
+    while(++i != e)
+    {
+        if(exists(num, *i))
+            break;
+    }
+    return i;
+}
+
+template<class Iter, class End>
+pair<string, Iter> getNumber(Iter i, End e)
+{
+    string n;
+    while(i != e && exists(num, *i))
+        n.push_back(*i++);
+    return {move(n), i - 1};
+}
+
+string create(char op, string n)
+{
+    return "(0" + string(1, op) + n + ")";
+}
+
+string strip(string orig)
 {
     string temp;
-    while(b != e)
-    {
-        if(numbers.find(*b) == numbers.end())
-            break;
-        temp.push_back(*b++);
-    }
-
+    for(auto e : orig)
+        if(e != ' ')
+            temp.push_back(e);
     return temp;
 }
 
-string toPostfix(string infix)
+string toPostfix(string ix)
 {
-    Stack<char> st; // Operation stack
-    string pf; // postfix
-#ifdef TEST_OPLAST
-    bool opLast = false;
-#endif
+    ix = strip(ix);
+    string pf; // Postfix string
+    Stack<char> st; // Operator stack
 
-    // Iterate through infix string
-    for(auto i = infix.begin(); i != infix.end(); ++i)
+    cout << "Evaluating: " << ix << "...\n";
+    for(auto i = ix.begin(); i != ix.end(); ++i)
     {
-        // If character is a space... continue loop
-        if(*i == ' ') continue;
-
-        if(ops.find(*i) == ops.end())
+        if(exists(num, *i))
         {
-#ifdef TEST_OPLAST
-            if(pf.size() && !opLast)
-                throw std::domain_error("Invalid syntax");
-#endif
+            auto n = getNumber(i, ix.end());
+            auto id = distance(i, n.second);
 
-            pf.append(getOperand(i, infix.end()));
-            --i;
+            pf.append(move(n.first));
             pf.push_back(' ');
-#ifdef TEST_OPLAST
-            opLast = false;
-#endif
+            i = i + id;
+        }
+        else if(exists(ops, *i))
+        {
+            if(isUnary(ix.begin(), ix.end(), i))
+            {
+                auto np = find(i, ix.end());
+                auto n = getNumber(np, ix.end());
+                auto id = distance(ix.begin(), i);
+
+                ix.replace(id, distance(i, np) + 1, create(*i, n.first));
+                i = ix.begin() + id;
+
+                cout << ix << endl;
+
+            }
+            else
+            {
+                ops[*i](st, pf, *i);
+            }
         }
         else
         {
-#ifdef TEST_OPLAST
-            if(opLast)
-                throw std::domain_error("Invalid syntax");
-#endif
-
-            ops[*i](st, pf, *i);
-#ifdef TEST_OPLAST
-            opLast = true;
-#endif
+            throw domain_error("Invalid syntax");
         }
-
     }
 
-    if(!st.empty())
+    while(!st.empty())
     {
-        pop(st, pf, '0');
+        pf.push_back(st.pop());
+        pf.push_back(' ');
     }
 
     return pf;

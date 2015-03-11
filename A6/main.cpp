@@ -22,6 +22,10 @@ unordered_map<char, decltype(&add)> operation {
     {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}
 };
 
+static std::set<char> numbers {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+};
+
 void evaluate()
 {
     string infix;
@@ -29,7 +33,14 @@ void evaluate()
     getline(cin, infix);
 
     cout << "Evaluating " << infix << "...\n";
-    string postfix = toPostfix(move(infix));
+    string postfix;
+    try {
+        postfix = toPostfix(move(infix));
+    } catch(domain_error& de)
+    {
+        cout << "Invalid syntax; You must use valid algebra\n";
+        return;
+    }
 
     cout << "Postfix: " << postfix << endl;
 
@@ -48,8 +59,18 @@ void evaluate()
         }
         else
         {
-            auto rhs = st.pop();
-            auto lhs = st.empty() ? 0 : st.pop();
+            // At this point, we assume that we're given a proper
+            // postfix string, since the conversion does the checks
+            int rhs, lhs;
+
+            try {
+                rhs = st.pop();
+                lhs = st.pop();
+            } catch(...)
+            {
+                cout << "Invalid syntax; You must use valid algebra\n";
+                return;
+            }
 
             st.push(operation[*i](lhs, rhs));
         }
