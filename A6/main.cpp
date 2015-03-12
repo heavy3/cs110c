@@ -42,9 +42,8 @@ bool evaluate()
     string postfix;
     try {
         postfix = toPostfix(infix);
-    } catch(domain_error& de)
-    {
-        cout << ">> invalid syntax\n";
+    } catch(domain_error& de) {
+        cerr << ">> invalid syntax\n";
         return true;
     }
 
@@ -67,15 +66,14 @@ bool evaluate()
             // postfix string, since the conversion does the checks
             double rhs, lhs;
 
-            try {
-                rhs = st.pop();
-                lhs = st.pop();
-            } catch(...)
+            if(st.size() < 2)
             {
-                cout << ">> invalid syntax\n";
+                cerr << ">> invalid syntax\n";
                 return true;
             }
 
+            rhs = st.pop();
+            lhs = st.pop();
             st.push(operation[*i](lhs, rhs));
         }
     }
@@ -88,7 +86,7 @@ int main(int argc, char *argv[])
 {
     cout << "KCalculator 1.0b (written by kevr)\n";
     cout << "Enter infix expressions below to be evaluated\n"
-         << "Press CTRL+D to quit\n";
+         << "Press CTRL+D on a new line to quit\n";
     while(evaluate());
     return 0;
 }

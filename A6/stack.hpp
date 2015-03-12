@@ -40,12 +40,14 @@ private:
     };
 
     std::unique_ptr<Node> head {nullptr};
+    std::size_t sz {0};
 
 public:
 
     void push(T value)
     {
         head = std::make_unique<Node>(std::move(value), std::move(head));
+        ++sz;
     }
 
     // Move a value from the head of the stack and delete that node
@@ -56,7 +58,7 @@ public:
 
         T value { std::move(head->value) };
         head = std::move(head->next);
-
+        --sz;
         return value;
     }
 
@@ -71,6 +73,11 @@ public:
     const bool empty() const
     {
         return !head;
+    }
+
+    const std::size_t size() const
+    {
+        return sz;
     }
 
     void traverse()
