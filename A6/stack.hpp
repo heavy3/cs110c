@@ -33,23 +33,74 @@ private:
         T value;
         std::unique_ptr<Node> next {nullptr};
 
-        Node(T v) : value(std::move(v)) {}
-        Node(T v, std::unique_ptr<Node> child)
+        Node(T&& v) : value(std::move(v)) {}
+        Node(const T& v) : value(v) {}
+
+        Node(T&& v, std::unique_ptr<Node> child)
             : value(std::move(v))
             , next(std::move(child)) // Move unique ptr
         { /* Initialization constructor */ }
+
+        Node(const T& v, std::unique_ptr<Node> child)
+            : value(v)
+            , next(std::move(child))
+        { /* Const initialization constructor */ }
     };
 
     // Our head pointer, and stack entry count sz
     std::unique_ptr<Node> head {nullptr};
     std::size_t sz {0};
 
+    void copy(const Stack& st)
+    {
+        for(auto p = st.head.get(); p != nullptr; p = p->next.get())
+            push(p->value);
+    }
+
 public:
+    // Copy the entire thing
+    Stack(const Stack& st)
+    {
+        copy(st);
+    }
+
+    // Just use operator=(Stack&&) to move on construction
+    Stack(Stack&& st)
+    {
+        operator=(std::move(st));
+    }
+
+    /* Copies st's data over */
+    Stack& operator=(const Stack& st)
+    {
+        copy(st);
+        return *this;
+    }
+
+    /* Steals ownership of st's data */
+    Stack& operator=(Stack&& st)
+    {
+        // Rip out head
+        head = std::move(st.head);
+        st.head.reset(nullptr);
+
+        // Rip out size
+        sz = std::move(st.sz);
+        st.sz = 0;
+        return *this;
+    }
 
     /* + push(value: T): void
     /  @value: A valid lvalue or rvalue object or built-in
     /  Push value of type T onto the stack, increase size by one */
-    void push(T value) noexcept
+    void push(const T& value) noexcept
+    {
+        head = std::make_unique<Node>(value, std::move(head));
+        ++sz;
+    }
+
+    /* The RValue version of the leading push function, for move semantics */
+    void push(T&& value) noexcept
     {
         head = std::make_unique<Node>(std::move(value), std::move(head));
         ++sz;
@@ -102,7 +153,7 @@ public:
     }
 
     /* + traverse(void): void
-     * Traverse the stack and print everything out */
+     * Traverse the stack and print everything out; Helper function */
     void traverse()
     {
         std::cout << "Stack: ";

@@ -2,7 +2,8 @@
 Author: Kevin Morris
 File: convert.hpp
 License: GPL2
-A set of helper functions and structures for converting things.
+A set of helper functions and structures for converting
+mathematical infix expressions to their postfix counterparts
 Copyright (C) 2015 Kevin Morris
 **/
 #ifndef CONVERT_HPP
@@ -38,8 +39,8 @@ std::string create(char op, std::string n);
 std::string strip(std::string orig);
 std::string toPostfix(std::string infix);
 
-void push(Stack<char>& stack, std::string& pf, char ch);
-void pop(Stack<char>& stack, std::string& pf, char ch);
+void push(Stack<char>& st, std::string& pf, char ch);
+void  pop(Stack<char>& st, std::string& pf, char ch);
 
 #endif /* CONVERT_HPP */
 

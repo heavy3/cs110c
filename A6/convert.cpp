@@ -2,7 +2,8 @@
 Author: Kevin Morris
 File: convert.cpp
 License: GPL2
-A set of helper functions and structures for converting things.
+A set of helper functions and structures for converting
+mathematical infix expressions to their postfix counterparts
 Copyright (C) 2015 Kevin Morris
 **/
 #include "convert.hpp"
@@ -141,38 +142,41 @@ string toPostfix(string ix)
 }
 
 /* operator push portion of Pearson's infix => postfix algorithm */
-void push(Stack<char>& stack, string& pf, char ch)
+void push(Stack<char>& st, string& pf, char ch)
 {
-    if(stack.empty() || ch == '(') // Base case
+    if(st.empty() || ch == '(') // Base case
     {
-        stack.push(ch);
+        st.push(move(ch));
         return;
     }
 
-    // Empty out the stack up to '(' or a higher priority operator
-    while(!stack.empty() && prio.at(stack.peek()) >= prio.at(ch))
-    {
-        if(stack.peek() == '(')
-            break;
-        auto temp = stack.pop();
+    // Lambda used to check priority in the loop
+    auto checkPrio = [&]() {
+        return prio.at(st.peek()) >= prio.at(ch);
+    };
 
-        pf.push_back(std::move(temp));
+    // Empty out the st up to '(' or a higher priority operator
+    while(!st.empty() && checkPrio() && st.peek() != '(')
+    {
+        pf.push_back(st.pop());
         pf.push_back(' ');
     }
-
-    stack.push(ch); // Push the current character on the stack
+    st.push(ch); // Push the current character on the st
 }
 
 /* operator pop portion of Pearson's infix => postfix algorithm */
-void pop(Stack<char>& stack, string& pf, char ch)
+void pop(Stack<char>& st, string& pf, char ch)
 {
     // Might be the bug
-    while(!stack.empty() && stack.peek() != '(')
+    while(!st.empty())
     {
-        pf.push_back(stack.pop());
+        auto temp = st.pop();
+        if(temp == '(')
+            break;
+
+        pf.push_back(move(temp));
         pf.push_back(' ');
     }
-    stack.pop();
 }
 
 
