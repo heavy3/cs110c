@@ -15,22 +15,8 @@ unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
     {'/', push}, {'+', push}, {'-', push}
 };
 
-/* A set of characters used inside of numbers, for parsing
-/  whole numbers and decimals */
-static const set<char> num {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
-};
-
 /* A set of unary operators to check */
 static const set<char> unary {'-', '+'};
-
-/* This function checks to see if t exists in container c
-/  T must be the type used in C<T> for this function to instantiate */
-template<class C, class T>
-static bool exists(const C& c, const T& t)
-{
-    return c.find(t) != c.end();
-}
 
 /* This function checks to see if a given character at pos i
 /  is a unary operator, depending on the character to the left of

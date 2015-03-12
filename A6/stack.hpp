@@ -10,7 +10,9 @@ Copyright (C) 2015 Kevin Morris
 
 #include <utility> // For std::move/std::forward utilities
 #include <memory> // For smart pointers
+#include <iostream>
 
+/* Boilerplate helper function for allocating a unique_ptr */
 namespace std
 {
     template<typename T, typename... Args>
@@ -19,8 +21,6 @@ namespace std
         return unique_ptr<T>(new T(forward<Args>(args)...));
     }
 };
-
-#include <iostream>
 
 template<typename T>
 class Stack

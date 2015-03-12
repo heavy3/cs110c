@@ -19,6 +19,20 @@ const std::unordered_map<char, int> prio {
     {')', 4}, {'(', 3}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1}
 };
 
+/* A set of characters used inside of numbers, for parsing
+/  whole numbers and decimals */
+const std::set<char> num {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+};
+
+/* This function checks to see if t exists in container c
+/  T must be the type used in C<T> for this function to instantiate */
+template<class C, class T>
+bool exists(const C& c, const T& t)
+{
+    return c.find(t) != c.end();
+}
+
 /* Prototypes for postfix conversion helpers and function */
 std::string create(char op, std::string n);
 std::string strip(std::string orig);
