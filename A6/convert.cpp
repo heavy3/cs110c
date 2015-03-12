@@ -9,24 +9,35 @@ Copyright (C) 2015 Kevin Morris
 #include <iostream>
 using namespace std;
 
-// Operations
+/* Operation hashtable. Map operator => function */
 unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
     {'(', push}, {')', pop}, {'*', push},
     {'/', push}, {'+', push}, {'-', push}
 };
 
-static std::set<char> num {
+/* A set of characters used inside of numbers, for parsing
+/  whole numbers and decimals */
+static const set<char> num {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
-}, unary {'-', '+'};
+};
 
+/* A set of unary operators to check */
+static const set<char> unary {'-', '+'};
+
+/* This function checks to see if t exists in container c
+/  T must be the type used in C<T> for this function to instantiate */
 template<class C, class T>
-bool exists(const C& c, const T& t)
+static bool exists(const C& c, const T& t)
 {
     return c.find(t) != c.end();
 }
 
+/* This function checks to see if a given character at pos i
+/  is a unary operator, depending on the character to the left of
+/  i being a ')' or not; base case is that i is a unary operator
+/  and it's at the start of the string */
 template<class Begin, class End, class Iter>
-bool isUnary(Begin s, End e, Iter i)
+static bool isUnary(Begin s, End e, Iter i)
 {
     if(!exists(unary, *i))
         return false;
@@ -34,31 +45,41 @@ bool isUnary(Begin s, End e, Iter i)
     return i == s ? true : *--i == '(';
 }
 
+/* This function finds the first character in the number set
+/  from the position given + 1 and returns the iterator at that
+/  position as a position marker */
 template<class Iter, class End>
-Iter find(Iter i, End e)
+static Iter find(Iter i, End e)
 {
     while(++i != e)
     {
         if(exists(num, *i))
-            break;
+            return i;
     }
     return i;
 }
 
+/* This function takes an iterator i, starting at character
+/  in the number set, and iterates the entire number.
+/  It then returns a pair of the string and its position - 1
+/  to the caller for iterative convenience. */
 template<class Iter, class End>
-pair<string, Iter> getNumber(Iter i, End e)
+static pair<string, Iter> getNumber(Iter i, End e)
 {
     string n;
     while(i != e && exists(num, *i))
         n.push_back(*i++);
-    return {move(n), i - 1};
+    return {n, i - 1};
 }
 
+/* This function constructs a unary fix.
+/  i.e. -3 will be turned into (0-3) and returned */
 string create(char op, string n)
 {
     return "(0" + string(1, op) + n + ")";
 }
 
+/* Strips all spaces from a string and returns the new string */
 string strip(string orig)
 {
     string temp;
@@ -68,49 +89,62 @@ string strip(string orig)
     return temp;
 }
 
+/* This function takes an infix math expression as its argument
+/  and uses an algorithm by Pearson, slightly modified by me to
+/  convert an infix string containing whole numbers, decimals,
+/  and operators into a postfix expression to be evaluated later */
 string toPostfix(string ix)
 {
-    ix = strip(ix);
+    // Note: infix string can take '3 5 + 2' and this will strip it to
+    // '35+2' which will be 37. We should pick up this syntax error
+    ix = strip(ix); // Strip spaces off the infix string
     string pf; // Postfix string
     Stack<char> st; // Operator stack
 
+    // Loop through the string with iterator i
     for(auto i = ix.begin(); i != ix.end(); ++i)
     {
-        if(exists(num, *i))
+        if(exists(num, *i)) // If this char is in the number set
         {
             auto n = getNumber(i, ix.end());
-            auto id = distance(i, n.second);
+            auto id = distance(i, n.second); // Distance between i and n - 1
 
-            i = i + id;
-            pf.append(move(n.first));
-            pf.push_back(' ');
+            i = i + id; // Increase iterator position to account for number
+            pf.append(move(n.first)); // Append the parsed string into postfix
+            pf.push_back(' '); // Add a space
         }
-        else if(exists(ops, *i))
+        else if(exists(ops, *i)) // If this char is in the operator set
         {
+            // If it's a unary operator
             if(isUnary(ix.begin(), ix.end(), i))
             {
+                // Find the pos of the first number
                 auto np = find(i, ix.end());
+                // Get it
                 auto n = getNumber(np, ix.end());
-                auto id = distance(ix.begin(), i);
+                auto id = distance(ix.begin(), i); // Store current position
 
                 // Replace portion of the string from operator
                 // to end of number
                 ix.replace(id, distance(i, n.second + 1),
                            create(*i, n.first));
 
-                i = ix.begin() + id - 1; // Move back one, for ++i iteration
+                // Set i to our old position - 1, so '(' catches on next loop
+                i = ix.begin() + id - 1;
             }
-            else
+            else // If binary
             {
+                // Call from operation hashtable for normal operation
                 ops[*i](st, pf, *i);
             }
         }
-        else
+        else // Something went wrong, invalid syntax
         {
             throw domain_error("Invalid syntax");
         }
-    }
+    } // End of string
 
+    /* Pop the rest of the stack onto the postfix string */
     while(!st.empty())
     {
         pf.push_back(st.pop());
@@ -120,9 +154,10 @@ string toPostfix(string ix)
     return pf;
 }
 
+/* operator push portion of Pearson's infix => postfix algorithm */
 void push(Stack<char>& stack, string& pf, char ch)
 {
-    if(stack.empty() || ch == '(')
+    if(stack.empty() || ch == '(') // Base case
     {
         stack.push(ch);
         return;
@@ -142,6 +177,7 @@ void push(Stack<char>& stack, string& pf, char ch)
     stack.push(ch); // Push the current character on the stack
 }
 
+/* operator pop portion of Pearson's infix => postfix algorithm */
 void pop(Stack<char>& stack, string& pf, char ch)
 {
     // Might be the bug

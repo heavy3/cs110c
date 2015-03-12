@@ -13,11 +13,15 @@ Copyright (C) 2015 Kevin Morris
 #include <set>
 #include <unordered_map>
 
-// Priorities
+/* Operator priority table.
+/  Inequality: ')' > '(' > '*' >= '/' > '+' >= '-' */
 const std::unordered_map<char, int> prio {
     {')', 4}, {'(', 3}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1}
 };
 
+/* Prototypes for postfix conversion helpers and function */
+std::string create(char op, std::string n);
+std::string strip(std::string orig);
 std::string toPostfix(std::string infix);
 
 void push(Stack<char>& stack, std::string& pf, char ch);

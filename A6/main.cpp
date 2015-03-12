@@ -41,7 +41,7 @@ bool evaluate()
 
     string postfix;
     try {
-        postfix = toPostfix(infix);
+        postfix = toPostfix(move(infix));
     } catch(domain_error& de) {
         cerr << ">> invalid syntax\n";
         return true;
