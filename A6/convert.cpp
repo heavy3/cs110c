@@ -9,7 +9,6 @@ Copyright (C) 2015 Kevin Morris
 #include <iostream>
 using namespace std;
 
-
 // Operations
 unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
     {'(', push}, {')', pop}, {'*', push},
@@ -75,7 +74,6 @@ string toPostfix(string ix)
     string pf; // Postfix string
     Stack<char> st; // Operator stack
 
-    cout << "Evaluating: " << ix << "...\n";
     for(auto i = ix.begin(); i != ix.end(); ++i)
     {
         if(exists(num, *i))
@@ -83,9 +81,9 @@ string toPostfix(string ix)
             auto n = getNumber(i, ix.end());
             auto id = distance(i, n.second);
 
+            i = i + id;
             pf.append(move(n.first));
             pf.push_back(' ');
-            i = i + id;
         }
         else if(exists(ops, *i))
         {
@@ -95,8 +93,12 @@ string toPostfix(string ix)
                 auto n = getNumber(np, ix.end());
                 auto id = distance(ix.begin(), i);
 
-                ix.replace(id, distance(i, np) + 1, create(*i, n.first));
-                i = ix.begin() + id;
+                // Replace portion of the string from operator
+                // to end of number
+                ix.replace(id, distance(i, n.second + 1),
+                           create(*i, n.first));
+
+                i = ix.begin() + id - 1; // Move back one, for ++i iteration
 
                 cout << ix << endl;
 
@@ -123,7 +125,7 @@ string toPostfix(string ix)
 
 void push(Stack<char>& stack, string& pf, char ch)
 {
-    if(stack.empty())
+    if(stack.empty() || ch == '(')
     {
         stack.push(ch);
         return;
@@ -132,9 +134,9 @@ void push(Stack<char>& stack, string& pf, char ch)
     // Empty out the stack up to '(' or a higher priority operator
     while(!stack.empty() && prio.at(stack.peek()) >= prio.at(ch))
     {
-        auto temp = stack.pop();
-        if(temp == '(')
+        if(stack.peek() == '(')
             break;
+        auto temp = stack.pop();
 
         pf.push_back(std::move(temp));
         pf.push_back(' ');
@@ -145,11 +147,13 @@ void push(Stack<char>& stack, string& pf, char ch)
 
 void pop(Stack<char>& stack, string& pf, char ch)
 {
+    // Might be the bug
     while(!stack.empty() && stack.peek() != '(')
     {
         pf.push_back(stack.pop());
         pf.push_back(' ');
     }
+    stack.pop();
 }
 
 

@@ -73,6 +73,18 @@ public:
         return !head;
     }
 
+    void traverse()
+    {
+        auto *p = head.get();
+        std::cout << "Stack: ";
+        while(p)
+        {
+            std::cout << p->value << ' ';
+            p = p->next.get();
+        }
+        std::cout << std::endl;
+    }
+
 };
 
 #endif /* STACK_HPP */

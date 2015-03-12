@@ -13,10 +13,10 @@ Copyright (C) 2015 Kevin Morris
 #include <iostream>
 using namespace std;
 
-int add(int a, int b) { return a + b; }
-int sub(int a, int b) { return a - b; }
-int mul(int a, int b) { return a * b; }
-int divide(int a, int b) { return a / b; }
+double add(double a, double b) { return a + b; }
+double sub(double a, double b) { return a - b; }
+double mul(double a, double b) { return a * b; }
+double divide(double a, double b) { return a / b; }
 
 unordered_map<char, decltype(&add)> operation {
     {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}
@@ -25,6 +25,11 @@ unordered_map<char, decltype(&add)> operation {
 static std::set<char> numbers {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
 };
+
+bool isDouble(const string& s)
+{
+    return s.find(".") != string::npos;
+}
 
 void evaluate()
 {
@@ -35,16 +40,16 @@ void evaluate()
     cout << "Evaluating " << infix << "...\n";
     string postfix;
     try {
-        postfix = toPostfix(move(infix));
+        postfix = toPostfix(infix);
     } catch(domain_error& de)
     {
         cout << "Invalid syntax; You must use valid algebra\n";
         return;
     }
 
-    cout << "Postfix: " << postfix << endl;
+    cout << "PF: " << postfix << endl;
 
-    Stack<int> st;
+    Stack<double> st;
 
     for(auto i = postfix.begin(); i != postfix.end(); ++i)
     {
@@ -55,13 +60,13 @@ void evaluate()
             string num;
             while(i != postfix.end() && numbers.find(*i) != numbers.end())
                 num.push_back(*i++);
-            st.push(stoi(num));
+            st.push(stod(num));
         }
         else
         {
             // At this point, we assume that we're given a proper
             // postfix string, since the conversion does the checks
-            int rhs, lhs;
+            double rhs, lhs;
 
             try {
                 rhs = st.pop();
@@ -76,33 +81,13 @@ void evaluate()
         }
     }
 
-    cout << st.pop() << endl;
+    cout << infix << " = " << st.pop() << endl;
 
 }
 
 int main(int argc, char *argv[])
 {
     evaluate();
-    /*
-    // Push L, A onto the st ack
-    stack.push('L');
-    stack.push('A');
-
-    // Should print 0, A, 0, L
-    cout << stack.empty() << endl;
-    cout << stack.pop() << endl;
-    cout << stack.empty() << endl;
-    cout << stack.pop() << endl;
-
-    // Should print 1, throw error
-    cout << stack.empty() << endl;
-    cout << stack.pop() << endl;
-    
-    // Should never happen
-    cout << stack.empty() << endl;
-    cout << stack.pop() << endl;
-    */
-
     return 0;
 }
 
