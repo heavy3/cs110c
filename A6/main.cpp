@@ -13,6 +13,11 @@ Copyright (C) 2015 Kevin Morris
 #include <iostream>
 using namespace std;
 
+// Constants
+const long double e   = 2.718281828459;
+const long double pi  = 3.14159265359;
+const long double phi = 1.6180339887;
+
 /* A series of templated math operation functions, for binding to
 operation tables; we'll instantiate these as doubles */
 template<typename T>
@@ -79,9 +84,9 @@ bool evaluate()
             while(i != postfix.end() && exists(num, *i))
                 n.push_back(*i++);
             if(n[0] == 'e')
-                n = "2.718281828459";
+                n = to_string(e);
             else if(n[n.size() - 1] == 'e')
-                n = to_string(2.718281828459 * stold(n.substr(0, n.size() - 1)));
+                n = to_string(e * stold(n.substr(0, n.size() - 1)));
             st.push(stold(n)); // Convert it to double and push on stack
         }
         else
