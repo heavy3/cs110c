@@ -23,7 +23,7 @@ const std::unordered_map<char, int> prio {
 /* A set of characters used inside of numbers, for parsing
 /  whole numbers and decimals */
 const std::set<char> num {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+    'e', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
 };
 
 /* This function checks to see if t exists in container c

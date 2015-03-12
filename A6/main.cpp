@@ -69,7 +69,8 @@ bool evaluate()
 
     for(auto i = postfix.begin(); i != postfix.end(); ++i)
     {
-        if(*i == ' ') continue;
+        if(*i == ' ') // Skip spaces in postfix
+            continue;
 
         if(!exists(prio, *i)) // If it's not in the priority set
         {
@@ -77,7 +78,11 @@ bool evaluate()
             string n;
             while(i != postfix.end() && exists(num, *i))
                 n.push_back(*i++);
-            st.push(stod(n)); // Convert it to double and push on stack
+            if(n[0] == 'e')
+                n = "2.718281828459";
+            else if(n[n.size() - 1] == 'e')
+                n = to_string(2.718281828459 * stold(n.substr(0, n.size() - 1)));
+            st.push(stold(n)); // Convert it to double and push on stack
         }
         else
         {
@@ -94,7 +99,10 @@ bool evaluate()
     }
 
     // We got out of the string, so we're done, print value and end
+    auto prec = cout.precision();
+    cout.precision(12);
     cout << ">> " << st.pop() << endl;
+    cout.precision(prec);
     return true;
 }
 

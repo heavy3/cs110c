@@ -2,7 +2,8 @@
 Author: Kevin Morris
 File: stack.hpp
 License: GPL2
-A stack data structure implementation, compiled using C++11 standardees.
+A stack data structure implementation, compiled using GCC 4.9, -std=c++11.
+- Note - Remove traverse() and iostream from this when completely finished.
 Copyright (C) 2015 Kevin Morris
 **/
 #ifndef STACK_HPP
@@ -51,13 +52,18 @@ private:
     std::unique_ptr<Node> head {nullptr};
     std::size_t sz {0};
 
+private: // Private helper functions
     void copy(const Stack& st)
     {
+        // For each Node in Stack st, push it's value into this Stack
         for(auto p = st.head.get(); p != nullptr; p = p->next.get())
             push(p->value);
     }
 
 public:
+    // Default constructor; members initialized inline
+    Stack() = default;
+
     // Copy the entire thing
     Stack(const Stack& st)
     {
