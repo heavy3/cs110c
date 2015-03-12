@@ -99,9 +99,6 @@ string toPostfix(string ix)
                            create(*i, n.first));
 
                 i = ix.begin() + id - 1; // Move back one, for ++i iteration
-
-                cout << ix << endl;
-
             }
             else
             {

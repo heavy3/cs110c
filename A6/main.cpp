@@ -31,23 +31,22 @@ bool isDouble(const string& s)
     return s.find(".") != string::npos;
 }
 
-void evaluate()
+bool evaluate()
 {
     string infix;
-    cout << "Enter an infix expression: ";
     getline(cin, infix);
 
-    cout << "Evaluating " << infix << "...\n";
+    if(cin.eof()) // if CTRL+D was given
+        return false; // Quit out
+
     string postfix;
     try {
         postfix = toPostfix(infix);
     } catch(domain_error& de)
     {
-        cout << "Invalid syntax; You must use valid algebra\n";
-        return;
+        cout << ">> invalid syntax\n";
+        return true;
     }
-
-    cout << "PF: " << postfix << endl;
 
     Stack<double> st;
 
@@ -73,21 +72,24 @@ void evaluate()
                 lhs = st.pop();
             } catch(...)
             {
-                cout << "Invalid syntax; You must use valid algebra\n";
-                return;
+                cout << ">> invalid syntax\n";
+                return true;
             }
 
             st.push(operation[*i](lhs, rhs));
         }
     }
 
-    cout << infix << " = " << st.pop() << endl;
-
+    cout << ">> " << st.pop() << endl;
+    return true;
 }
 
 int main(int argc, char *argv[])
 {
-    evaluate();
+    cout << "KCalculator 1.0b (written by kevr)\n";
+    cout << "Enter infix expressions below to be evaluated\n"
+         << "Press CTRL+D to quit\n";
+    while(evaluate());
     return 0;
 }
 
