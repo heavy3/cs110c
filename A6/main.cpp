@@ -10,6 +10,7 @@ Copyright (C) 2015 Kevin Morris
 #include "convert.hpp"
 #include <set>
 #include <unordered_map>
+#include <sstream>
 #include <iostream>
 using namespace std;
 
@@ -49,6 +50,17 @@ bool invalid()
     return true;
 }
 
+/* Standard library C++11 to_string functions forces a loss
+/  of precision when converting double/long double to string */
+template<typename T>
+string to_string_prec(const T& value, const int n = 14)
+{
+    ostringstream out;
+    out.precision(n);
+    out << value;
+    return out.str();
+}
+
 /* Input and expression evaluation */
 bool evaluate()
 {
@@ -84,12 +96,18 @@ bool evaluate()
             while(i != postfix.end() && exists(num, *i))
                 n.push_back(*i++);
 
-            if(n[0] == 'e')
-                n = to_string(e);
-            else if(n[n.size() - 1] == 'e')
-                n = to_string(e * stold(n.substr(0, n.size() - 1)));
+            long double toPush {0};
 
-            st.push(stold(n)); // Convert it to double and push on stack
+            if(n[0] == 'e' && n.size() == 1)
+                toPush = e;
+            else if(n[0] == 'e')
+                toPush = e * stold(n.substr(1));
+            else if(n[n.size() - 1] == 'e')
+                toPush = e * stold(n.substr(0, n.size() - 1));
+            else
+                toPush = stold(n);
+
+            st.push(move(toPush)); // Convert it to double and push on stack
         }
         else
         {
@@ -107,7 +125,7 @@ bool evaluate()
 
     // We got out of the string, so we're done, print value and end
     auto prec = cout.precision();
-    cout.precision(12);
+    cout.precision(14);
     cout << ">> " << st.pop() << endl;
     cout.precision(prec);
     return true;

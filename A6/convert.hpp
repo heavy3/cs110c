@@ -17,7 +17,8 @@ Copyright (C) 2015 Kevin Morris
 /* Operator priority table.
 /  Inequality: ')' > '(' > '*' >= '/' > '+' >= '-' */
 const std::unordered_map<char, int> prio {
-    {')', 4}, {'(', 3}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1}
+    {')', 5}, {'(', 4}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1},
+    {'^', 3},
 };
 
 /* A set of characters used inside of numbers, for parsing
