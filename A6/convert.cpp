@@ -11,9 +11,9 @@ Copyright (C) 2015 Kevin Morris
 using namespace std;
 
 /* Operation hashtable. Map operator => function */
-unordered_map<char, void(*)(Stack<char>&, string&, char)> ops {
+unordered_map<char, decltype(&push)> ops {
     {'(', push}, {')', pop}, {'*', push},
-    {'/', push}, {'+', push}, {'-', push}
+    {'/', push}, {'+', push}, {'-', push}, {'^', push}
 };
 
 /* A set of unary operators to check */

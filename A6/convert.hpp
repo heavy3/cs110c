@@ -16,7 +16,7 @@ Copyright (C) 2015 Kevin Morris
 
 /* Operator priority table.
 /  Inequality: ')' > '(' > '*' >= '/' > '+' >= '-' */
-const std::unordered_map<char, int> prio {
+const std::unordered_map<char, unsigned short> prio {
     {')', 5}, {'(', 4}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1},
     {'^', 3},
 };

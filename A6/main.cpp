@@ -8,11 +8,15 @@ Copyright (C) 2015 Kevin Morris
 **/
 #include "stack.hpp"
 #include "convert.hpp"
+#include <cmath>
 #include <set>
 #include <unordered_map>
 #include <sstream>
 #include <iostream>
 using namespace std;
+
+const char* const programName { "kcalc" };
+const char* const programVer  { "1.0.0b" };
 
 // Constants
 const long double e   = 2.718281828459;
@@ -33,9 +37,12 @@ T mul(T a, T b) { return a * b; }
 template<typename T>
 T divide(T a, T b) { return a / b; }
 
+template<typename T>
+T power(T a, T b) { return pow(a, b); }
+
 /* Our operation binds */
 unordered_map<char, decltype(&add<long double>)> operation {
-    {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}
+    {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}, {'^', power}
 };
 
 /* Helper functions */
@@ -46,7 +53,7 @@ bool isDouble(const string& s)
 
 bool invalid()
 {
-    cerr << ">> invalid syntax\n";
+    cerr << "!> invalid syntax\n";
     return true;
 }
 
@@ -65,6 +72,7 @@ string to_string_prec(const T& value, const int n = 14)
 bool evaluate()
 {
     string infix;
+    cout << ">> ";
     getline(cin, infix);
 
     if(cin.eof()) // If CTRL+D was given
@@ -126,18 +134,49 @@ bool evaluate()
     // We got out of the string, so we're done, print value and end
     auto prec = cout.precision();
     cout.precision(14);
-    cout << ">> " << st.pop() << endl;
+    cout << st.pop() << endl;
     cout.precision(prec);
     return true;
 }
 
-int main(int argc, char *argv[])
+void program()
+{
+    cout << programName << ' ' << programVer << " (written by kevr)\n";
+}
+
+void welcome()
 {
     /* Intro */
-    cout << "KCalculator 1.0b (written by kevr)\n";
     cout << "Enter infix expressions below to be evaluated\n"
          << "Press CTRL+D on a new line to quit\n";
+}
 
+
+bool usage(const char* const name)
+{
+    cout << "usage: " << name << " [-h|--help]\n";
+    return true;
+}
+
+bool help(const char* const name)
+{
+    usage(name);
+    cout << "Options\n"
+         << "\t-h, --help | Print out help prompt\n";
+    return false;
+}
+
+int main(int argc, char *argv[])
+{
+    program();
+
+    if(argc > 1)
+    {
+        string a { move(argv[1]) };
+        return a == "-h" || a == "--help" ? help(argv[0]) : usage(argv[0]);
+    }
+
+    welcome();
     /* While evaluate returns true, we try again */
     while(evaluate());
     return 0;
