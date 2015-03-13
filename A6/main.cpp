@@ -76,7 +76,10 @@ bool evaluate()
     getline(cin, infix);
 
     if(cin.eof()) // If CTRL+D was given
+    {
+        cout << endl;
         return false; // Quit out
+    }
 
     if(!infix.size()) // If the user pressed enter
         return invalid();
@@ -150,7 +153,6 @@ void welcome()
     cout << "Enter infix expressions below to be evaluated\n"
          << "Press CTRL+D on a new line to quit\n";
 }
-
 
 bool usage(const char* const name)
 {
