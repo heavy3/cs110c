@@ -15,16 +15,15 @@ Copyright (C) 2015 Kevin Morris
 #include <unordered_map>
 
 /* Operator priority table.
-/  Inequality: ')' > '(' > '*' >= '/' > '+' >= '-' */
+/  Inequality: ')' > '(' > '^' > '*' >= '/' > '+' >= '-' */
 const std::unordered_map<char, unsigned short> prio {
-    {')', 5}, {'(', 4}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1},
-    {'^', 3},
+    {')', 5}, {'(', 4}, {'^', 3}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1}
 };
 
 /* A set of characters used inside of numbers, for parsing
 /  whole numbers and decimals */
 const std::set<char> num {
-    'e', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
 };
 
 /* This function checks to see if t exists in container c
