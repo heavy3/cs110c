@@ -124,22 +124,20 @@ int main(int argc, char *argv[])
     // Create expression object
     Expression<long double> expr;
 
-    while(true)
+    while(!cin.eof())
     {
-        string infix;
+        string ix;
         cout << ">> ";
-        getline(cin, infix);
-        if(cin.eof())
-        {
-            cout << "Bye\n";
-            break;
-        }
+        getline(cin, ix);
 
-        if(!infix.size() || !expr.consume(move(infix)) || !expr.evaluate())
+        if(cin.eof())
+            cout << "Bye\n";
+        else if(!ix.size() || !expr.consume(move(ix)) || !expr.evaluate())
             invalid();
         else
             cout << expr.result() << endl;
     }
+
     cout.precision(prec);
 
     return 0;
