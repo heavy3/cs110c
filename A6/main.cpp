@@ -33,7 +33,7 @@ template<typename T>
 T divide(T a, T b) { return a / b; }
 
 /* Our operation binds */
-unordered_map<char, decltype(&add<double>)> operation {
+unordered_map<char, decltype(&add<long double>)> operation {
     {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}
 };
 
@@ -70,7 +70,7 @@ bool evaluate()
         return invalid();
     }
 
-    Stack<double> st; // Stack to store our values
+    Stack<long double> st; // Stack to store our values
 
     for(auto i = postfix.begin(); i != postfix.end(); ++i)
     {
@@ -83,15 +83,17 @@ bool evaluate()
             string n;
             while(i != postfix.end() && exists(num, *i))
                 n.push_back(*i++);
+
             if(n[0] == 'e')
                 n = to_string(e);
             else if(n[n.size() - 1] == 'e')
                 n = to_string(e * stold(n.substr(0, n.size() - 1)));
+
             st.push(stold(n)); // Convert it to double and push on stack
         }
         else
         {
-            double rhs, lhs;
+            long double rhs, lhs;
 
             if(st.size() < 2) // If the stack has less than 2 operands
                 return invalid(); // Invalid syntax
