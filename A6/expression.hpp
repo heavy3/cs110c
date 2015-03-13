@@ -25,42 +25,50 @@ const std::unordered_map<std::string, MAX_TYPE> constant {
     {"e", e}, {"pi", pi}, {"phi", phi}
 };
 
-/* A series of templated math operation functions, for binding to
-operation tables; we'll instantiate these as doubles */
+/* An abstracted hashtable from character to operation functions;
+This table supports ops['+'], '-', '*', '/', and '^' */
 template<typename T>
-T add(T a, T b) { return a + b; }
-
-template<typename T>
-T sub(T a, T b) { return a - b; }
-
-template<typename T>
-T mul(T a, T b) { return a * b; }
-
-template<typename T>
-T divide(T a, T b) { return a / b; }
-
-template<typename T>
-T power(T a, T b) { return pow(a, b); }
-
-/* Templated singleton instance for the Operation Table, to be used
-within the BaseExpression class to reuse a binding of one types operations */
-template<typename T>
-std::unordered_map<char, decltype(&add<T>)>& getOperations()
+class Operations
 {
-    static std::unordered_map<char, decltype(&add<T>)> ops {
-        {'+', add}, {'-', sub}, {'*', mul}, {'/', divide}, {'^', power}
-    };
-    return ops;
-}
+private:
+    /* Our operation functions */
+    static T add(T a, T b) { return a + b; }
+    static T sub(T a, T b) { return a - b; }
+    static T mul(T a, T b) { return a * b; }
+    static T div(T a, T b) { return a / b; }
+    static T pow(T a, T b) { return ::pow(a, b); }
+
+    /* Redefinitions of some types we're using in this class */
+    using FunctionType = decltype(&add);
+    using TableType = std::unordered_map<char, FunctionType>;
+
+    /* Singleton function to keep references of a single operation
+     * object for each type instantiated with this class */
+    static TableType& getTable()
+    {
+        static TableType table {
+            {'+', add}, {'-', sub}, {'*', mul}, {'/', div}, {'^', pow}
+        };
+        return table;
+    }
+
+    /* Internal operation table */
+    TableType& ops { getTable() };
+
+public:
+    // Our function getter
+    FunctionType operator[](const char key)
+    {
+        return ops[key];
+    }
+};
 
 /* Default T to MAX_TYPE/long double */
 template<typename T = MAX_TYPE>
 class BaseExpression
 {
 private:
-    std::unordered_map<char, decltype(&add<T>)>& operation {
-        getOperations<T>()
-    };
+    Operations<T> ops;
 
 private:
     std::string postfix; // Conversion string
@@ -88,9 +96,12 @@ public:
         return true;
     }
 
+    // The Functor given to this function is responsible for converting
+    // a string to a number. i.e. num = convert(string)
     template<typename Functor>
-    const T& evaluate(Functor f)
+    const bool evaluate(Functor f)
     {
+        st.clear(); // Clear the stack of possible old errors
         for(auto i = postfix.begin(); i != postfix.end(); ++i)
         {
             if(*i == ' ') // Skip spaces in postfix
@@ -103,28 +114,33 @@ public:
                 while(i != postfix.end() && exists(num, *i))
                     n.push_back(*i++);
 
-                // Convert it to double and push on stack
-                st.push(f(n));
+                st.push(f(n)); // Call conversion functor
             }
             else
             {
                 T rhs, lhs;
 
                 if(st.size() < 2) // If the stack has less than 2 operands
-                {
-                    throw std::domain_error("Invalid number of operands");
-                }
+                    return false;
 
                 // Otherwise, pop the two operands and push the operation
                 rhs = st.pop();
                 lhs = st.pop();
-                st.push(BaseExpression::operation[*i](lhs, rhs));
+                // Call operation from our operation table
+                st.push(BaseExpression::ops[*i](lhs, rhs));
             }
         }
-        value = st.pop();
+        value = st.pop(); // Store evaluation result
+
+        return true;
+    }
+
+    const T& result() const
+    {
         return value;
     }
 
+    /* Helper function for cout, prints postfix expression */
     friend std::ostream& operator<<(std::ostream& os, const BaseExpression& e)
     {
         os << e.postfix;
@@ -140,7 +156,7 @@ class Expression : public BaseExpression<T>
 public:
     using BaseExpression<T>::BaseExpression;
 
-    const T& evaluate()
+    const bool evaluate()
     {
         return BaseExpression<T>::evaluate([](const std::string& a) {
             return std::stold(a); // Long double, default (biggest size+prec)
@@ -156,7 +172,7 @@ class Expression<double> : public BaseExpression<double>
 public:
     using BaseExpression::BaseExpression;
 
-    const double& evaluate()
+    const bool evaluate()
     {
         return BaseExpression::evaluate([](const std::string& a) {
             return std::stod(a);
@@ -170,7 +186,7 @@ class Expression<unsigned long> : public BaseExpression<unsigned long>
 public:
     using BaseExpression::BaseExpression;
     
-    const unsigned long& evaluate()
+    const bool evaluate()
     {
         return BaseExpression::evaluate([](const std::string& a) {
             return std::stoul(a);
@@ -185,7 +201,7 @@ class Expression<long> : public BaseExpression<long>
 public:
     using BaseExpression::BaseExpression;
     
-    const long& evaluate()
+    const bool evaluate()
     {
         return BaseExpression::evaluate([](const std::string& a) {
             return std::stol(a);
@@ -200,7 +216,7 @@ class Expression<long long> : public BaseExpression<long long>
 public:
     using BaseExpression::BaseExpression;
     
-    const long long& evaluate()
+    const bool evaluate()
     {
         return BaseExpression::evaluate([](const std::string& a) {
             return std::stoll(a);
@@ -214,7 +230,7 @@ class Expression<int> : public BaseExpression<int>
 public:
     using BaseExpression::BaseExpression;
 
-    const int& evaluate()
+    const bool evaluate()
     {
         return BaseExpression::evaluate([](const std::string& a) {
             return std::stoi(a);

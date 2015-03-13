@@ -158,6 +158,12 @@ public:
         return sz;
     }
 
+    void clear()
+    {
+        head = nullptr;
+        sz = 0;
+    }
+
     /* + traverse(void): void
      * Traverse the stack and print everything out; Helper function */
     void traverse()

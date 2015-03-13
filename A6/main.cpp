@@ -20,15 +20,6 @@ using namespace std;
 const char* const programName { "kcalc" };
 const char* const programVer  { "1.0.0b" };
 
-// 128-bit sized floating point, "It's a triple!"
-using triple = long double;
-
-/* Helper functions */
-bool isDouble(const string& s)
-{
-    return s.find(".") != string::npos;
-}
-
 bool hasConstant(const string& s, const string& c)
 {
     return s.find(c) != string::npos;
@@ -61,81 +52,6 @@ string to_string_prec(const T& value, const int n = 14)
     out << value;
     return out.str();
 }
-
-/* Input and expression evaluation
-bool evaluate()
-{
-    string infix;
-    cout << ">> ";
-    getline(cin, infix);
-
-    if(cin.eof()) // If CTRL+D was given
-    {
-        cout << endl;
-        return false; // Quit out
-    }
-
-    if(!infix.size()) // If the user pressed enter
-        return invalid();
-
-    Try to get a postfix conversion, if an exception throws, something
-    went wrong in the toPostfix conversion; so it's syntactically errored
-    string postfix;
-    try {
-        postfix = toPostfix(move(infix));
-    } catch(domain_error& de) {
-        return invalid();
-    }
-
-    Stack<triple> st; // Stack to store our values
-
-    for(auto i = postfix.begin(); i != postfix.end(); ++i)
-    {
-        if(*i == ' ') // Skip spaces in postfix
-            continue;
-
-        if(!exists(prio, *i)) // If it's not in the priority set
-        {
-            // Then it's a number, so parse it
-            string n;
-            while(i != postfix.end() && exists(num, *i))
-                n.push_back(*i++);
-
-            triple toPush {0};
-
-            if(n[0] == 'e' && n.size() == 1)
-                toPush = e;
-            else if(n[0] == 'e')
-                toPush = e * stold(n.substr(1));
-            else if(n[n.size() - 1] == 'e')
-                toPush = e * stold(n.substr(0, n.size() - 1));
-            else
-                toPush = stold(n);
-
-            st.push(move(toPush)); // Convert it to double and push on stack
-        }
-        else
-        {
-            triple rhs, lhs;
-
-            if(st.size() < 2) // If the stack has less than 2 operands
-                return invalid(); // Invalid syntax
-
-            // Otherwise, pop the two operands and push the operation
-            rhs = st.pop();
-            lhs = st.pop();
-            st.push(operation[*i](lhs, rhs));
-        }
-    }
-
-    // We got out of the string, so we're done, print value and end
-    auto prec = cout.precision();
-    cout.precision(14);
-    cout << st.pop() << endl;
-    cout.precision(prec);
-    return true;
-}
-*/
 
 void program()
 {
@@ -191,12 +107,6 @@ bool help(const char* const name)
 
 int main(int argc, char *argv[])
 {
-    /*
-    Expression e("3+2+-");
-    cout << e << endl;
-
-    return 0;
-    */
     program();
 
     if(argc > 1)
@@ -206,12 +116,14 @@ int main(int argc, char *argv[])
     }
 
     welcome();
-    /* While evaluate returns true, we try again */
-    //while(evaluate());
     
+    // Set precision
     auto prec = cout.precision();
     cout.precision(14);
+
+    // Create expression object
     Expression<long double> expr;
+
     while(true)
     {
         string infix;
@@ -223,17 +135,10 @@ int main(int argc, char *argv[])
             break;
         }
 
-        if(!expr.consume(move(infix)))
-        {
+        if(!infix.size() || !expr.consume(move(infix)) || !expr.evaluate())
             invalid();
-            continue;
-        }
-
-        try {
-            cout << expr.evaluate() << endl;
-        } catch(domain_error&) {
-            invalid();
-        }
+        else
+            cout << expr.result() << endl;
     }
     cout.precision(prec);
 
