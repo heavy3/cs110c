@@ -11,7 +11,7 @@ Copyright (C) 2015 Kevin Morris
 
 #include <utility> // For std::move/std::forward utilities
 #include <memory> // For smart pointers
-#include <iostream>
+#include <iostream> // Traversal printing
 
 /* Boilerplate helper function for allocating a unique_ptr */
 namespace std
@@ -73,7 +73,7 @@ public:
     // Just use operator=(Stack&&) to move on construction
     Stack(Stack&& st)
     {
-        operator=(std::move(st));
+        operator=(std::forward<Stack>(st));
     }
 
     /* Copies st's data over */

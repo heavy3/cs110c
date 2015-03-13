@@ -144,7 +144,8 @@ bool evaluate()
 
 void program()
 {
-    cout << programName << ' ' << programVer << " (written by kevr)\n";
+    cout << programName << ' ' << programVer << " (written by kevr) "
+         << "compiled on (" << __DATE__ << " at "  __TIME__ << ")\n";
 }
 
 void welcome()
@@ -165,6 +166,31 @@ bool help(const char* const name)
     usage(name);
     cout << "Options\n"
          << "\t-h, --help | Print out help prompt\n";
+    
+    cout << "\nOperators (in order of prescendence)\n"
+         << "\tParenthesis    | (1 + 2)\n"
+         << "\tPower          | 2^2\n"
+         << "\tMultiplication | 1 * 2\n"
+         << "\tDivision       | 1 / 2\n"
+         << "\tAddition       | 1 + 2\n"
+         << "\tSubtraction    | 1 - 2\n";
+
+    cout << "\nUnary Operators\n"
+         << "\tNegative       | -1\n"
+         << "\tPositive       | +1\n";
+
+    cout << "\nSpecial Constants\n"
+         << "\te              | Euler's Constant\n";
+
+    cout << "\nExample Expressions\n"
+         << "\t-e + (5.3 - 2) / 0.3 + 163\n"
+         << "\t5^2 + 4.2^3\n"
+         << "\t16/(-3) + 64.3 * (22 - 1)\n";
+
+    cout << "\nAuthors\n"
+         << "\tKevin Morris   | kevr@nixcode.us\n";
+
+    cout << endl;
     return false;
 }
 

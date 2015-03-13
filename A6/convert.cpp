@@ -70,7 +70,7 @@ string create(char op, string n)
 string strip(string orig)
 {
     string temp;
-    for(auto e : orig)
+    for(const auto e : orig)
         if(e != ' ')
             temp.push_back(e);
     return temp;
