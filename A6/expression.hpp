@@ -17,14 +17,6 @@ Copyright (C) 2015 Kevin Morris
 // Default T we'll use for Expressions
 using MAX_TYPE = long double;
 
-const MAX_TYPE e   = 2.718281828459;
-const MAX_TYPE pi  = 3.14159265359;
-const MAX_TYPE phi = 1.6180339887;
-
-const std::unordered_map<std::string, MAX_TYPE> constant {
-    {"e", e}, {"pi", pi}, {"phi", phi}
-};
-
 /* An abstracted hashtable from character to operation functions;
 This table supports ops['+'], '-', '*', '/', and '^' */
 template<typename T>
