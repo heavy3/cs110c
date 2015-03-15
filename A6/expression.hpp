@@ -93,6 +93,10 @@ public:
     template<typename Functor>
     const bool evaluate(Functor f)
     {
+        // Reference singletons
+        const auto& prio = Utility::priority();
+        const auto& num = Utility::numbers();
+
         st.clear(); // Clear the stack of possible old errors
         for(auto i = postfix.begin(); i != postfix.end(); ++i)
         {

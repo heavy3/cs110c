@@ -16,14 +16,32 @@ Copyright (C) 2015 Kevin Morris
 
 /* Operator priority table.
 /  Inequality: ')' > '(' > '^' > '*' >= '/' > '+' >= '-' */
-const std::unordered_map<char, unsigned short> prio {
-    {')', 5}, {'(', 4}, {'^', 3}, {'*', 2}, {'/', 2}, {'+', 1}, {'-', 1}
-};
+// A Singleton Utility structure for hash tables.
+struct Utility
+{
+private:
+    using PriorityType = std::unordered_map<char, unsigned short>;
+    using NumbersType = std::set<char>;
 
-/* A set of characters used inside of numbers, for parsing
-/  whole numbers and decimals */
-const std::set<char> num {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+public: 
+    static const PriorityType& priority()
+    {
+        static PriorityType prio {
+            {')', 5}, {'(', 4}, {'^', 3}, {'*', 2},
+            {'/', 2}, {'+', 1}, {'-', 1}
+        };
+        return prio;
+    }
+
+    /* A set of characters used inside of numbers, for parsing
+    /  whole numbers and decimals */
+    static const NumbersType& numbers()
+    {
+        static NumbersType num {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'
+        };
+        return num;
+    }
 };
 
 /* This function checks to see if t exists in container c
@@ -43,4 +61,5 @@ void push(Stack<char>& st, std::string& pf, char ch);
 void  pop(Stack<char>& st, std::string& pf, char ch);
 
 #endif /* CONVERT_HPP */
+
 

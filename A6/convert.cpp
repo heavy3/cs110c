@@ -4,6 +4,7 @@ File: convert.cpp
 License: GPL2
 A set of helper functions and structures for converting
 mathematical infix expressions to their postfix counterparts
+All static items are only used in this file.
 Copyright (C) 2015 Kevin Morris
 **/
 #include "convert.hpp"
@@ -11,7 +12,7 @@ Copyright (C) 2015 Kevin Morris
 using namespace std;
 
 /* Operation hashtable. Map operator => function */
-unordered_map<char, decltype(&push)> ops {
+static unordered_map<char, decltype(&push)> ops {
     {'(', push}, {')', pop}, {'*', push},
     {'/', push}, {'+', push}, {'-', push}, {'^', push}
 };
@@ -38,6 +39,8 @@ static bool isUnary(Begin s, End e, Iter i)
 template<class Iter, class End>
 static Iter find(Iter i, End e)
 {
+    const auto& num = Utility::numbers(); // Reference singleton
+
     while(++i != e)
     {
         if(exists(num, *i))
@@ -53,6 +56,7 @@ static Iter find(Iter i, End e)
 template<class Iter, class End>
 static pair<string, Iter> getNumber(Iter i, End e)
 {
+    const auto& num = Utility::numbers();
     string n;
     while(i != e && exists(num, *i))
         n.push_back(*i++);
@@ -82,6 +86,8 @@ string strip(string orig)
 /  and operators into a postfix expression to be evaluated later */
 string toPostfix(string ix)
 {
+    const auto& num = Utility::numbers(); // Reference singleton
+
     // Note: infix string can take '3 5 + 2' and this will strip it to
     // '35+2' which will be 37. We should pick up this syntax error
     ix = strip(ix); // Strip spaces off the infix string
@@ -144,6 +150,7 @@ string toPostfix(string ix)
 /* operator push portion of Pearson's infix => postfix algorithm */
 void push(Stack<char>& st, string& pf, char ch)
 {
+    const auto& prio = Utility::priority(); // Reference singleton
     if(st.empty() || ch == '(') // Base case
     {
         st.push(move(ch));
