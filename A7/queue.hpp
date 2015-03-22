@@ -20,19 +20,24 @@ private:
     T data[MAX_QUEUE + 1];
 
     std::size_t front = 0;
-    std::size_t back  = MAX_QUEUE - 1;
+    std::size_t back  = 0;
+
+    const std::size_t increment(const std::size_t n) const
+    {
+        return (n + 1) % (MAX_QUEUE + 1);
+    }
 
 public:
     Queue() = default;
 
     const bool empty() const
     {
-        return front == back + 1;
+        return front == back;
     }
 
     const bool full() const
     {
-        return front == back + 2;
+        return front == increment(back);
     }
 
     bool enqueue(T value)
@@ -40,8 +45,8 @@ public:
         if(full())
             return false;
 
-        back = (back + 1) % MAX_QUEUE;
         data[back] = std::move(value);
+        back = increment(back);
         return true;
     }
 
@@ -50,7 +55,7 @@ public:
         if(empty())
             throw std::domain_error("Queue<T> dequeued while empty");
         T temp { std::move(data[front]) };
-        front = (front + 1) % MAX_QUEUE;
+        front = increment(front);
         return temp;
     }
 
