@@ -8,111 +8,126 @@
 
 #include <cmath>
 #include <utility>
+#include <stdexcept>
+#include <iostream>
 
+/*! @class ArrayTree
+ * A templated class that performs insertions and traversals
+ * on a given specific type T. This structure is a Complete
+ * Binary Tree implemented with an array of nodes.
+ */
 template<typename T>
-class tree
+class ArrayTree
 {
 private:
     /* Order of member variables matters here,
-    data needs to know about POWER and exp to be allocated */
-    using size_t = unsigned int;
+    data needs to know about cap */
+    using size_t = unsigned int; // Type alias
 
-    size_t cap {2}; // Capacity; starts at 2 and doubles when needed
-    size_t sz {0};
+    size_t cap {8}; // Capacity; starts at 8 (height 3)
+    size_t sz {0}; // No items are inserted at initialization
 
-    T* data {nullptr}; // Data array which can be table doubled
-    bool* enabled {nullptr};
+    /* A node with two members: value, and enabled.
+     * Enabled keeps track of null state. false == null. */
+    struct Node
+    {
+        T value;
+        bool enabled {false};
+    };
+
+    Node *data; // Will be an array of Nodes
 
 public:
-    tree() : data(new T[cap]), enabled(new bool[cap])
+    ArrayTree() : data(new Node[cap])
     {
         /* Default constructor, allocate initial capacity */
     }
 
-    ~tree()
+    ArrayTree(std::initializer_list<T> il)
+        : data(new Node[cap])
     {
-        delete [] enabled;
+        if(il.size() > cap)
+            throw std::domain_error("Initializer List too large");
+
+        for(auto& e : il)
+            add(std::move(e));
+    }
+
+    /* Frees our array */
+    ~ArrayTree()
+    {
         delete [] data;
     }
 
+    // Return the capacity of the current array
     const size_t capacity() const
     {
         return cap;
     }
 
+    // Return the size of the tree: The number of items we've added.
     const size_t size() const
     {
         return sz;
     }
 
-    // Slots will be something like 62, or 64
-    // This function will satisfy slots by allocating size
-    // a power of 2 >= slots.
-    void reserve(const size_t slots)
+    /* Adds one value of type T to the tree. */
+    bool add(T value)
     {
-        auto ln = log2(slots);
-        size_t x = ln; // Exponent,
-        x = ln > x ? x + 1 : x;
-        cap = 2 << (x - 1);
+        if(sz == cap) /* If we're full, return false */
+            return false;
 
-        T *ndata = new T[cap];
+        size_t i = getFirstEmptyNode();
 
-        // Use algorithm to insert old values into new tree
-        //
-        if(sz > cap)
-            sz = cap;
+        // Set value and set node to enabled (non-null flag)
+        data[i].value = std::move(value);
+        data[i].enabled = true;
+        ++sz; // Increase real length of the tree
 
-        copy_tree(ndata);
-
-        delete [] data;
-        data = ndata;
+        return true; // Operations went smoothly
     }
 
-    void add(T value)
+    /* Preorder traversal. From root to left to right,
+     * this function recursively prints out the current node */
+    void preorder(size_t i = 1)
     {
-        if(sz == cap)
+        if(data[i].enabled)
         {
-            cap *= 2;
-            // Realloc tree
-            auto *d = data;
-            data = new T[cap];
-            copy_tree(d);
+            std::cout << data[i].value << std::endl;
+            preorder(leftChild(i));
+            preorder(rightChild(i));
         }
-
-        data[0] = std::move(value);
-        enabled[0] = true;
-        ++sz;
-    }
-
-    bool remove(const T& value)
-    {
-        for(size_t i = 0; i < sz; ++i)
-        {
-            if(enabled[i] && data[i] == value)
-            {
-                enabled[i] = false;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool find(const T& value)
-    {
-        for(size_t i = 0; i < sz; ++i)
-        {
-            if(enabled[i] && data[i] == value)
-                return true;
-        }
-        return false;
     }
 
 private:
-    void copy_tree(T *ndata) // T = new data array
+    /* Left child of a given index in a Complete Binary Tree */
+    size_t leftChild(size_t i)
     {
-        for(size_t i = 0; i < sz; ++i)
-            add(ndata[i]);
+        return i * 2;
+    }
+
+    /* Right child of a given index in a Complete Binary Tree */
+    size_t rightChild(size_t i)
+    {
+        return i * 2 + 1;
+    }
+
+    /* Starting at the root, recursively traverse the tree
+     * preorder to find the first empty node encountered */
+    size_t getFirstEmptyNode(size_t i = 1) // Starts at root = 1
+    {
+        if(data[i].enabled)
+        {
+            size_t c = leftChild(i); // look at Left child
+            if(data[c].enabled) // If Left child != null
+                c = rightChild(i); // Then look at Right child
+            if(data[c].enabled) // If Right child != null
+                c = leftChild(i); // Then we move to Left child
+            i = c; // Set index to our decided child
+            return getFirstEmptyNode(i); // Recurse with new index
+        }
+
+        return i; // When not data[i].enabled
     }
 
 };
