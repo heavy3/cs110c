@@ -87,17 +87,14 @@ public:
         return true; // Operations went smoothly
     }
 
-    /* Preorder traversal. From root to left to right,
-     * this function recursively prints out the current node */
-    void preorder(size_t i = 1)
+    void preorder()
     {
-        if(data[i].enabled)
-        {
-            std::cout << data[i].value << std::endl;
-            preorder(leftChild(i));
-            preorder(rightChild(i));
-        }
+        std::cout << "Preorder Traversal: ";
+        preorder(1);
+        std::cout << std::endl;
     }
+
+
 
 private:
     /* Left child of a given index in a Complete Binary Tree */
@@ -118,16 +115,28 @@ private:
     {
         if(data[i].enabled)
         {
-            size_t c = leftChild(i); // look at Left child
-            if(data[c].enabled) // If Left child != null
-                c = rightChild(i); // Then look at Right child
-            if(data[c].enabled) // If Right child != null
-                c = leftChild(i); // Then we move to Left child
-            i = c; // Set index to our decided child
+            size_t c = leftChild(i); // Look at left child
+            if(data[c].enabled) // If left child != null
+                c = rightChild(i); // Look at right child
+            if(data[c].enabled) // If right child != null
+                c = leftChild(i); // Then we move to left child
+            i = c; // Set index to decided child
             return getFirstEmptyNode(i); // Recurse with new index
         }
 
         return i; // When not data[i].enabled
+    }
+
+    /* Preorder traversal. From root to left to right,
+     * this function recursively prints out the current node */
+    void preorder(size_t i)
+    {
+        if(data[i].enabled)
+        {
+            std::cout << data[i].value << ' ';
+            preorder(leftChild(i));
+            preorder(rightChild(i));
+        }
     }
 
 };

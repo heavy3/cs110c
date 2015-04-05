@@ -13,14 +13,16 @@ void tree(std::initializer_list<string> il)
     static unsigned int ti = 0; // Test index
     cout << "Tree Test " << ++ti << endl;
 
+    ArrayTree<string> bt(il);
+    cout << "Binary Tree Size: " << bt.capacity() << endl;
+
     cout << "Insertion order: ";
     for(auto& e : il)
         cout << e << ' ';
     cout << endl;
 
-    ArrayTree<string> bt(std::move(il));
-    cout << "Binary Tree Size: " << bt.capacity() << endl;
     bt.preorder();
+    cout << endl;
 }
 
 int main(int argc, char *argv[])
