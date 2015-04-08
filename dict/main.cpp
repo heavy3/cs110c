@@ -4,13 +4,6 @@
 using namespace std;
 using namespace nix;
 
-uint hash_string(string s)
-{
-    uint h {0};
-
-    return h;
-}
-
 void hash_test()
 {
     nix::hash<std::string> shash;
@@ -26,13 +19,16 @@ void dict_test()
     string k("Kevin"), c("Carl");
 
     dict[k] = 6;
-    cout << dict[k] << endl;
-    
-    dict[c] = 7;
-    cout << dict[c] << endl;
+    cout << "Kevin: " << dict[k] << endl;
 
-    cout << dict[k] << endl;
+    dict[c] = 11;
+    cout << "Carl:  " << dict[c] << endl;
+    cout << "Kevin: " << dict[k] << endl;
 
+    dict["Haha"] = 63;
+    cout << "Haha: " << dict["Haha"] << endl;
+    cout << "Carl: " << dict[c] << endl;
+    cout << "Kevin: " << dict[k] << endl;
 }
 
 int main()

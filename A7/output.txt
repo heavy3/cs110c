@@ -1,0 +1,15 @@
+[kevr@bit A7]$ ./exec 
+usage: ./exec 'palindrome'
+[kevr@bit A7]$ ./exec racecar
+racecar is a palindrome.
+[kevr@bit A7]$ ./exec racec
+racec is not a palindrome.
+[kevr@bit A7]$ ./exec racecarr
+Queue was full when trying to add an element
+[kevr@bit A7]$ ./exec racecar
+racecar is a palindrome.
+[kevr@bit A7]$ ./exec lolol
+lolol is a palindrome.
+[kevr@bit A7]$ ./exec lololo
+lololo is not a palindrome.
+[kevr@bit A7]$

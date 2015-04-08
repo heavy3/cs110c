@@ -29,13 +29,31 @@ namespace nix
     struct hash;
 
     template<>
+    struct hash<sz_t>
+    {
+        sz_t operator()(sz_t n)
+        {
+            return n;
+        }
+    };
+
+    template<>
+    struct hash<int>
+    {
+        sz_t operator()(int n)
+        {
+            return static_cast<sz_t>(n);
+        }
+    };
+
+    template<>
     struct hash<char>
     {
         sz_t operator()(char c)
         {
             return double_cast<uchar, sz_t>(c);
         }
-    };   
+    };
 
     template<>
     struct hash<std::string>
@@ -48,17 +66,7 @@ namespace nix
             for(const char c : s)
             {
                 sz_t h = hash(c);
-
-                // Construct a binary string of the hash
-                std::string bin;
-                bin.reserve(255);
-                for(sz_t i = 0, k = h; k / 2 != 0; k /= 2, ++i)
-                    bin[i] = i % 2 ? '1' : '0';
-
-                // Get that binary string's length for shifting over
-                sz_t len = bin.length();
-
-                var |= ~( (var << len) | h );
+                var = ( (var << (sizeof(char) * 8)) | h );
             }
 
             return var;
@@ -74,6 +82,7 @@ namespace nix
             Key key;
             Value value;
             bool set {false};
+            bool used {false};
         };
 
         nix::hash<Key> hash;
@@ -99,68 +108,89 @@ namespace nix
 
         item& insert(const Key& key, const Value& value)
         {
-            sz_t trial = 1;
-            auto k = trial_hash(key, trial) % _m;
+            return data[0];
+        }
 
-            while(data[k].set)
-                k = trial_hash(key, ++trial) % _m;
+        bool remove(const Key& key)
+        {
+            auto k = trial(key, [&](sz_t k) {
+                return data[k].used && data[k].key != key;
+            });
 
-            data[k].value = value;
-            data[k].set = true;
+            if(!data[k].set)
+                return false;
 
-            return data[k];
+            return !(data[k].set = false);
         }
 
         const Value& operator[](const Key& key) const
         {
-            sz_t trial = 1;
+            auto k = trial(key, [&](sz_t k) {
+                return data[k].used && data[k].key != key;
+            });
 
-            auto k = trial_hash(key, trial) % _m;
-            if(data[k].key == key)
-            {
-                return data[k].value;
-            }
-            else
-            {
-                while(data[k].set && data[k].key != key)
-                    k = trial_hash(key, ++trial) % _m;
-                if(!data[k].set)
-                    throw std::domain_error("key does not exist");
-            }
+            if(!data[k].set || data[k].key != key)
+                throw std::domain_error("Key Error");
 
             return data[k].value;
         }
 
         Value& operator[](const Key& key)
         {
-            sz_t trial = 1;
+            if(_n == _m)
+                rehash(_m * 2);
 
-            auto k = trial_hash(key, trial) % _m;
-            if(data[k].key == key)
-            {
-                if(!data[k].set)
-                    data[k].set = ++_n;
-                return data[k].value;
-            }
-
-            while(data[k].set && data[k].key != key)
-                k = trial_hash(key, ++trial) % _m;
+            auto k = trial(key, [&](sz_t k) {
+                return data[k].used && data[k].key != key;
+            });
 
             if(!data[k].set)
-                data[k].set = ++_n;
+            {
+                data[k].key = key;
+                data[k].set = data[k].used = true;
+                ++_n;
+            }
 
             return data[k].value;
         }
 
     private:
 
-        sz_t trial_hash(const Key& key, sz_t step)
+        sz_t thash(const Key& key, sz_t step)
         {
-            return hash(key) * step;
+            auto k = hash(key) + step;
+            return k;
         }
 
-        void rehash(sz_t m, sz_t n)
+        /* ContPred cp = Contiuation Predicate */
+        template<typename ContPred>
+        sz_t trial(const Key& key, ContPred cp, sz_t t = 1)
         {
+            auto k = thash(key, t) % _m;
+            return cp(k) ? trial(key, cp, t + 1) : k;
+        }
+
+        void rehash(sz_t m)
+        {
+            _m = m;
+            item *new_array = new item[_m];
+            for(sz_t i = 0; i < m; ++i)
+            {
+                if(!data[i].set)
+                    continue;
+
+                const auto& key = data[i].key;
+                auto k = trial(key, [&](sz_t k) {
+                    return new_array[k].set && new_array[k].key != key;
+                });
+
+                new_array[k].key = std::move(data[i].key);
+                new_array[k].value = std::move(data[i].value);
+                new_array[k].set = true;
+
+            }
+            delete [] data;
+            data = new_array;
         }
 
     };
